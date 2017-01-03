@@ -141,3 +141,72 @@
     (if (null? ls)
       (list)
       (cons (fn (car ls)) (map fn (cdr ls))))))
+
+;; Exercise 30
+(define filter
+  (lambda (p? ls) 
+     (cond
+       [(null? ls) (list)]
+       [(p? (car ls)) (cons (car ls) (filter p? (cdr ls)))]
+       [else (filter p? (cdr ls))])))
+
+;; Exercise 31
+(define counts
+  (lambda (p? ls)
+    (length (filter p? ls))))
+
+;; Exercise 32
+
+
+
+
+
+;; Exercise 33
+(define insert
+  (lambda (num ls)
+    (cond
+      [(null? ls) (cons num '())]
+      [(>= (car ls) num) (cons num ls)]
+      [else (cons (car ls) (insert num (cdr ls)))])))
+
+;; Exercise 34
+(define sort
+  (lambda (nums)
+    (cond
+      [(null? nums) (list)]
+      [else (insert (car nums) (sort (cdr nums)))])))
+
+;; Exercise 35
+
+
+
+
+
+;; Exercise 36
+(define merge
+  (lambda (nums1 nums2)
+    (cond
+      [(and (null? nums1) (null? nums2)) (list)]
+      [(null? nums1) nums2]
+      [(null? nums2) nums1]
+      [(<= (car nums1) (car nums2)) (cons (car nums1) (merge (cdr nums1) nums2))]
+      [else (cons (car nums3) (merge nums1 (cdr nums2)))])))
+
+;; Exercise 37
+
+
+
+
+
+;; Exercise 38
+
+
+
+
+
+;; Exercise 39
+
+
+
+
+
