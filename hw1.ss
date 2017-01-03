@@ -104,15 +104,12 @@
       [else "Not a month!"])))
 
 ;; Exercise 25
-;; TODO Replace with ifs with cond
-;; See pg 37 LS
 (define member
   (lambda (e ls) 
-    (if (null? ls)
-       #f
-       (if (eq? (car ls) e)
-         #t
-         (member e (cdr ls))))))
+    (cond
+      [(null? ls) #f]
+      [else (or (eq? (car ls) e)
+                (member e (cdr ls)))])))
 
 ;; Exercise 26
 (define range
