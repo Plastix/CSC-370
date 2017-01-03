@@ -8,7 +8,7 @@
 "hello world"
 
 ;; Exercise 4
-("Let" "the" "Grecian" "dream" "of" "his" "sacred" "stream")
+'("Let" "the" "Grecian" "dream" "of" "his" "sacred" "stream")
 
 ;; Exercise 5
 (+ 3 4)
