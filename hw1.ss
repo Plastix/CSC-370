@@ -83,10 +83,7 @@
 ;; Exercise 23
 (define positive?
   (lambda (e)
-    (if (and (number? e) (> e 0))
-      #t
-      #f
-      )))
+  (and (number? e) (> e 0))))
 
 ;; Exercise 24
 (define numMonth->strMonth
@@ -108,6 +105,7 @@
 
 ;; Exercise 25
 ;; TODO Replace with ifs with cond
+;; See pg 37 LS
 (define member
   (lambda (e ls) 
     (if (null? ls)
@@ -122,3 +120,24 @@
     (if (> num1 num2)
       (list)
       (cons num1 (range (+ num1 1) num2)))))
+
+;; Exercise 27
+(define append
+  (lambda (ls1 ls2)
+    (if (null? ls1)
+      ls2
+      (cons (car ls1) (append (cdr ls1) ls2)))))
+
+;; Exercise 28
+(define flatten
+  (lambda (lls)
+    (if (null? lls)
+      (list)
+      (append (car lls) (flatten (cdr lls))))))
+
+;; Exercise 29
+(define map
+  (lambda (fn ls)
+    (if (null? ls)
+      (list)
+      (cons (fn (car ls)) (map fn (cdr ls))))))
