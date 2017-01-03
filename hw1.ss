@@ -190,7 +190,7 @@
       [(null? nums1) nums2]
       [(null? nums2) nums1]
       [(<= (car nums1) (car nums2)) (cons (car nums1) (merge (cdr nums1) nums2))]
-      [else (cons (car nums3) (merge nums1 (cdr nums2)))])))
+      [else (cons (car nums2) (merge nums1 (cdr nums2)))])))
 
 ;; Exercise 37
 
