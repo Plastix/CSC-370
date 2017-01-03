@@ -38,8 +38,7 @@
 ;; Exercise 13
 (let ((a 2) (b 7) (c 18))
   (/ (+ (sqrt (- (* b b) (* 4 (* a c)))) (- b)) 
-     (* 2 a))
-  )
+     (* 2 a)))
 
 
 ;; Exercise 14
@@ -174,10 +173,14 @@
       [else (insert (car nums) (sort (cdr nums)))])))
 
 ;; Exercise 35
-
-
-
-
+(define score100
+  (lambda (f)
+    (define looper
+      (lambda (n)
+        (if (>= (f n) 100)
+          n
+          (looper (+ n 1)))))
+    (looper 0)))
 
 ;; Exercise 36
 (define merge
