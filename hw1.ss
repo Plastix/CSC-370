@@ -2,7 +2,7 @@
 42
 
 ;; Exercise 2
-3.14159
+3.1415
 
 ;; Exercise 3
 "hello world"
