@@ -87,3 +87,38 @@
       #t
       #f
       )))
+
+;; Exercise 24
+(define numMonth->strMonth
+  (lambda (n)
+    (cond
+      [(= n 1) "January"]
+      [(= n 2) "Febuary"]
+      [(= n 3) "March" ]
+      [(= n 4) "April"]
+      [(= n 5) "May"]
+      [(= n 6) "June"]
+      [(= n 7) "July"]
+      [(= n 8) "August"]
+      [(= n 9) "September"]
+      [(= n 10) "October"]
+      [(= n 11) "November"]
+      [(= n 12) "December"]
+      [else "Not a month!"])))
+
+;; Exercise 25
+;; TODO Replace with ifs with cond
+(define member
+  (lambda (e ls) 
+    (if (null? ls)
+       #f
+       (if (eq? (car ls) e)
+         #t
+         (member e (cdr ls))))))
+
+;; Exercise 26
+(define range
+  (lambda (num1 num2)
+    (if (> num1 num2)
+      (list)
+      (cons num1 (range (+ num1 1) num2)))))
