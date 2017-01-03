@@ -30,8 +30,60 @@
 
 ;; Exercise 11
 (define identity
-  (lambda (x) x)
- )
+  (lambda (x) x))
 
 ;; Exercise 12
 (identity x)
+
+;; Exercise 13
+(let ((a 2) (b 7) (c 18))
+  (/ (+ (sqrt (- (* b b) (* 4 (* a c)))) (- b)) 
+     (* 2 a))
+  )
+
+
+;; Exercise 14
+(define plus42 
+  (lambda (e)
+    (if (number? e)
+      (+ e 42)
+      "the answer to...")))
+
+
+;; Exercise 15
+(car (list 1 1 2 3 5))
+
+;; Exercise 16
+(cadddr '(1 1 2 3 5))
+
+;; Exercise 17
+(cons 1 (cons 1 (cons 2 (cons 3 5))))
+
+;; Exercise 18
+(cons 3 4)
+
+;; Exercise 19
+(cons (cons (cons 1 2) (cons 3 (cons 4 '()))) 5)
+
+;; Exercise 20
+(and (or #t #f) #t)
+
+;; Exercise 21
+(let ((a #t) (b #f) (c #f))
+  (or 
+    (or (not (eq? a (not b))) 
+        (and c (not a))) 
+    b))
+
+;; Exercise 22
+(if (string? x)
+  42
+  "no")
+
+;; Exercise 23
+(define positive?
+  (lambda (e)
+    (if (and (number? e) (> e 0))
+      #t
+      #f
+      )))
