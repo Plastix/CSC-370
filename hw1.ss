@@ -17,6 +17,7 @@
 (* (+ (* (/ 5 9) 4) 17) (- 6.7 13))
 
 ;; Exercise 7
+;; TODO use overloaded + op
 (+ (+ (+ (+ (+ (+ (+ 0 1) 2) 3) 4) 5) 6) 7)
 
 ;; Exercise 8
@@ -152,10 +153,14 @@
     (length (filter p? ls))))
 
 ;; Exercise 32
-
-
-
-
+(define fib2
+  (lambda (n)
+    (define (fib num)
+      (cond
+        [(= num 1) 0]
+        [(= num 2) 1]
+        [else (+ (fib (- num 1)) (fib (- num 2)))]))
+    (map fib (range 1 n))))
 
 ;; Exercise 33
 (define insert
