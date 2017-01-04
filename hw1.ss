@@ -17,9 +17,7 @@
 (* (+ (* (/ 5 9) 4) 17) (- 6.7 13))
 
 ;; Exercise 7
-;; TODO use overloaded + op
-(+ (+ (+ (+ (+ (+ (+ 0 1) 2) 3) 4) 5) 6) 7)
-
+(+ 0 1 2 3 4 5 6 7)
 ;; Exercise 8
 (define x "hello world")
 
