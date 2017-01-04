@@ -98,8 +98,7 @@
       [(= n 9) "September"]
       [(= n 10) "October"]
       [(= n 11) "November"]
-      [(= n 12) "December"]
-      [else "Not a month!"])))
+      [(= n 12) "December"])))
 
 ;; Exercise 25
 (define member
@@ -155,9 +154,9 @@
   (lambda (n)
     (define (fib num)
       (cond
-        [(= num 1) 0]
+        [(<= num 1) 0]
         [(= num 2) 1]
-        [else (+ (fib (- num 1)) (fib (- num 2)))]))
+        [else (+ (fib (- num 1)) (fib (- num 2)) (fib (- num 3)))]))
     (map fib (range 1 n))))
 
 ;; Exercise 33
