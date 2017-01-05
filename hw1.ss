@@ -81,7 +81,7 @@
 ;; Exercise 23
 (define positive?
   (lambda (e)
-  (and (number? e) (> e 0))))
+  (and (number? e) (> e 0)))) ; short-circuiting logic
 
 ;; Exercise 24
 (define numMonth->strMonth
@@ -195,10 +195,25 @@
       [else (cons (car nums2) (merge nums1 (cdr nums2)))])))
 
 ;; Exercise 37
+(define left ; Split list by taking every even element
+  (lambda (ls)
+    (cond
+      [(null? ls) (list)]
+      [(null? (cdr ls)) (list)] ; Last element is odd, skip it
+      [else (cons (cadr ls) (left (cddr ls)))])))
 
+(define right ; Split list by taking every odd element
+  (lambda (ls)
+    (cond
+      [(null? ls) (list)]
+      [(null? (cdr ls)) (list (car ls))] ; Last element is odd, keep it
+      [else (cons (car ls) (right (cddr ls)))])))
 
-
-
+(define mergesort
+  (lambda (nums)
+    (cond
+      [(<= (length nums) 1) nums]
+      [else (merge (mergesort (left nums)) (mergesort (right nums)))])))
 
 ;; Exercise 38
 
