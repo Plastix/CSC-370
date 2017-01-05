@@ -1,3 +1,7 @@
+;; CSC 370 HS1
+;; Aidan Pieper
+;;
+
 ;; Exercise 1
 42
 
@@ -36,7 +40,7 @@
 
 ;; Exercise 13
 (let ((a 2) (b 7) (c 18))
-  (/ (+ (sqrt (- (* b b) (* 4 (* a c)))) (- b)) 
+  (/ (+ (sqrt (- (* b b) (* 4 a c))) (- b)) 
      (* 2 a)))
 
 
