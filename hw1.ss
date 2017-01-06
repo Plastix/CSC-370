@@ -57,6 +57,7 @@
 
 ;; Exercise 16
 (cadddr '(1 1 2 3 5))
+; (list-ref '(1 1 2 3 5) 3) also works
 
 ;; Exercise 17
 (cons 1 (cons 1 (cons 2 (cons 3 5))))
@@ -156,12 +157,12 @@
 ;; Exercise 32
 (define fib2
   (lambda (n)
-    (define (fib num)
-      (cond
-        [(<= num 1) 0]
-        [(= num 2) 1]
-        [else (+ (fib (- num 1)) (fib (- num 2)) (fib (- num 3)))]))
-    (map fib (range 1 n))))
+    (letrec ([fib (lambda (num) ; Use letrec so we can recurse from let-expression
+                   (cond
+                     [(<= num 1) 0]
+                     [(= num 2) 1]
+                     [else (+ (fib (- num 1)) (fib (- num 2)) (fib (- num 3)))]))])
+      (map fib (range 1 n)))))
 
 ;; Exercise 33
 (define insert
@@ -181,12 +182,12 @@
 ;; Exercise 35
 (define score100
   (lambda (f)
-    (define looper
-      (lambda (n)
-        (if (>= (f n) 100)
-          n
-          (looper (+ n 1)))))
-    (looper 0)))
+    (letrec ([looper
+               (lambda (n)
+                 (if (>= (f n) 100)
+                   n
+                   (looper (+ n 1))))])
+      (looper 0))))
 
 ;; Exercise 36
 (define merge
