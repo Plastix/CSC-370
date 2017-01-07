@@ -1,6 +1,6 @@
 ;; CSC 370 HS1
 ;; Aidan Pieper
-;;
+;; 1/11/17
 
 ;; Exercise 1
 42
