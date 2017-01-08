@@ -18,10 +18,11 @@
 (+ 3 4)
 
 ;; Exercise 6
-(* (+ (* (/ 5 9) 4) 17) (- 6.7 13))
+(* (+ (* 5/9 4) 17) (- 6.7 13))
 
 ;; Exercise 7
 (+ 0 1 2 3 4 5 6 7)
+
 ;; Exercise 8
 (define x "hello world")
 
@@ -43,14 +44,12 @@
   (/ (+ (sqrt (- (* b b) (* 4 a c))) (- b)) 
      (* 2 a)))
 
-
 ;; Exercise 14
 (define plus42 
   (lambda (e)
     (if (number? e)
       (+ e 42)
       "the answer to...")))
-
 
 ;; Exercise 15
 (car (list 1 1 2 3 5))
