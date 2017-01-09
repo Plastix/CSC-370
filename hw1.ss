@@ -34,13 +34,13 @@
 
 ;; Exercise 11
 (define identity
-  (lambda (x) x))
+  (lambda (e) e))
 
 ;; Exercise 12
 (identity x)
 
 ;; Exercise 13
-(let ((a 2) (b 7) (c 18))
+(let ([a 2] [b 7] [c 18])
   (/ (+ (sqrt (- (* b b) (* 4 a c))) (- b)) 
      (* 2 a)))
 
@@ -71,7 +71,7 @@
 (and (or #t #f) #t)
 
 ;; Exercise 21
-(let ((a #t) (b #f) (c #f))
+(let ([a #t] [b #f] [c #f])
   (or 
     (or (not (eq? a (not b))) 
         (and c (not a))) 
