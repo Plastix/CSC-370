@@ -73,7 +73,7 @@
 ;; Exercise 21
 (let ([a #t] [b #f] [c #f])
   (or 
-    (or (not (eq? a (not b))) 
+    (or (not (eqv? a (not b))) 
         (and c (not a))) 
     b))
 
