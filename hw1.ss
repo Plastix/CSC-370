@@ -59,7 +59,7 @@
 ; (list-ref '(1 1 2 3 5) 3) also works
 
 ;; Exercise 17
-(cons 1 (cons 1 (cons 2 (cons 3 5))))
+(cons 1 (cons 1 (cons 2 (cons 3 (cons 5 '())))))
 
 ;; Exercise 18
 (cons 3 4)
