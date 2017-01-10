@@ -218,16 +218,3 @@
     (cond
       [(<= (length nums) 1) nums]
       [else (merge (mergesort (left nums)) (mergesort (right nums)))])))
-
-;; Exercise 38
-
-
-
-
-
-;; Exercise 39
-
-
-
-
-
