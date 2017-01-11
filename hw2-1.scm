@@ -20,15 +20,36 @@
 
 (define clear-tests! (lambda () (set! my-tests! '())))
 
-;; (add-my-test! name-str qe1 qe2)
+;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
 ;; Function which takes a string name-str naming a test, and two
 ;; quoted S-expressions.  This function combines the name and the two
 ;; quoted expressions into a list and adds it to the head of the
 ;; global variable my-tests!  
 ;; MAKE SURE USE QUOTED EXPRESSIONS!
 (define add-my-test!
-  (lambda (name-str qe1 qe2)
-    (set! my-tests! (cons (list name-str qe1 qe2) my-tests!))))
+  (lambda (name-str ex-name-str ptval qe1 qe2)
+    (set! my-tests! (cons (list name-str ex-name-str ptval qe1 qe2) my-tests!))))
+
+;; Test helper methods
+(define test->name-str
+  (lambda (test)
+    (car test)))
+
+(define test->ex-name-str
+  (lambda (test)
+    (cadr test)))
+
+(define test->ptVal
+  (lambda (test)
+    (caddr test)))
+
+(define test->qe1
+  (lambda (test)
+    (cadddr test)))
+
+(define test->qe2
+  (lambda (test)
+    (car (cddddr test))))
 
 ;; (display-result! val1 val2)
 ;; Takes two values and displays them.
@@ -64,13 +85,32 @@
 ;; (run-one-test! name-str qe1 qe2)
 ;; Runs a test with the given name two quoted expressions
 (define run-one-test!
-  (lambda (name-str qe1 qe2)
-    (let 
-	([val1 (eval qe1)]  ;; This is why the quote are necessary.
-	 [val2 (eval qe2)])
+  (lambda (test)
+    (let* 
+	([name-str (test->name-str test)]
+     [qe1 (test->qe1 test)]
+     [qe2 (test->qe2 test)]
+     [val1 (eval qe1)]  ;; This is why the quote are necessary.
+	 [val2 (eval qe2)]
+     [ptVal (test->ptVal test)]
+     )
       (cond
-       [(equal? val1 val2) (display-test-success! name-str qe1 qe2 val1 val2)]
-       [else (display-test-failure! name-str qe1 qe2 val1 val2)]))))
+       [(equal? val1 val2) (display-test-success! name-str qe1 qe2 val1 val2) (list ptVal ptVal)]
+       [else (display-test-failure! name-str qe1 qe2 val1 val2) (list 0 ptVal)]))))
+
+(define run-one-exercise!
+  (lambda (ex-name-str test-ls)
+    (let* ([tests (filter (lambda (test)
+                            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
+           [results (fold-left 
+                      (lambda (acc head) (list (+ (car acc) (car head)) (+ (cadr acc) (cadr head)))) 
+                      '(0 0) 
+                      (map run-one-test! tests))])
+           (display "-----------------\n")
+           (display "Total Points: ")
+           (display (car results))
+           (display "/")
+           (display (cadr results)))))
 
 ;; (run-all-tests!)  
 ;; Runs all tests.  Note this is a 0-ary function, i.e., it takes no
@@ -84,18 +124,15 @@
 (define run-all-tests!* 
   (lambda (ls)
     (if (not (null? ls))
-	(let
-	    ([test (car ls)])
-	  (let ([name-str (car test)]
-		[qe1 (cadr test)]
-		[qe2 (caddr test)])
-	    (run-one-test! name-str qe1 qe2)
-	    (run-all-tests!* (cdr ls)))))))
+	(let ([test (car ls)])
+	    (run-one-test! test)
+	    (run-all-tests!* (cdr ls))))))
 
   
   
 ;; Sample tests for functions we wrote above
-;(add-my-test! "Reverse test" '(reverse '(1 2 3)) ''(3 2 1))
+(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1))
+(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
 
