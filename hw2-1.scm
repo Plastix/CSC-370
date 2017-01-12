@@ -174,7 +174,7 @@
 (define run-all-tests!* 
   (lambda (ls)
     ; list-sort is a stable sort so sorting by exercise name will keep the
-    ; with the same exercise tests in the correct order
+    ; tests with the same exercise name in their original order
     (let* ([sorted-tests (list-sort 
                            (lambda (t1 t2) (string<? (test->ex-name-str t1) (test->ex-name-str t2))) ls)])
       (display-points!
