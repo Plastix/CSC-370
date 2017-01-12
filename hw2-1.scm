@@ -1,3 +1,6 @@
+;; CSC 270 HS 2
+;; Aidan Pieper
+;; 1/18/17
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; -- Unit Test Framework --
@@ -21,11 +24,11 @@
 (define clear-tests! (lambda () (set! my-tests! '())))
 
 ;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
-;; Function which takes a string name-str naming a test, and two
-;; quoted S-expressions.  This function combines the name and the two
-;; quoted expressions into a list and adds it to the head of the
-;; global variable my-tests!  
-;; MAKE SURE USE QUOTED EXPRESSIONS!
+;; Function which takes a string name-str naming a test, a string
+;; ex-name-str naming the exercise, ptVal naming the point value of the problem 
+;; and two quoted S-expressions. This function combines all inputs and 
+;; adds it to the head of the global variable my-tests!  
+;; MAKE SURE TO USE QUOTED EXPRESSIONS!
 (define add-my-test!
   (lambda (name-str ex-name-str ptval qe1 qe2)
     (set! my-tests! (cons (list name-str ex-name-str ptval qe1 qe2) my-tests!))))
@@ -37,12 +40,20 @@
       [(zero? pos) (cons elem ls)]
       [else (cons (car ls) (insert-at elem (- pos 1) (cdr ls)))])))
 
+;; Tests whether the given test is in the following format:
+;; (name-str qe1 qe2)
+;; TODO NEEDS TO BE COMPLETED
+(define valid-test?
+  (lambda (test)
+    (and (= (length test) 3) ; We have 3 things
+         (string? (car test)))))
+
 (define add-batch-tests!
   (lambda (ex-name-str q-tests)
     (let 
       ([addTest! (lambda (test)
-       (set! test (insert-at 1 2 (insert-at ex-name-str 1 test))) 
-        (add-my-test!  (test->name-str test) (test->ex-name-str test) (test->ptVal test) (test->qe1 test) (test->qe2 test)))])
+                   (set! test (insert-at 1 2 (insert-at ex-name-str 1 test))) 
+                   (add-my-test!  (test->name-str test) (test->ex-name-str test) (test->ptVal test) (test->qe1 test) (test->qe2 test)))])
       (map addTest! q-tests)))) ;; TODO don't add test if format is incorrect
 
 ;; Test helper methods
@@ -97,34 +108,44 @@
     (display-result! qe2 val2)
     (display "\n")))
 
-;; (run-one-test! name-str qe1 qe2)
-;; Runs a test with the given name two quoted expressions
+;; (run-one-test! test)
+;; Runs the given test (list)
 (define run-one-test!
   (lambda (test)
     (let* 
-	([name-str (test->name-str test)]
-     [qe1 (test->qe1 test)]
-     [qe2 (test->qe2 test)]
-     [val1 (eval qe1)]  ;; This is why the quote are necessary.
-	 [val2 (eval qe2)]
-     [ptVal (test->ptVal test)])
+      ([name-str (test->name-str test)]
+       [qe1 (test->qe1 test)]
+       [qe2 (test->qe2 test)]
+       [val1 (eval qe1)]  ;; This is why the quote are necessary.
+       [val2 (eval qe2)]
+       [ptVal (test->ptVal test)])
       (cond
-       [(equal? val1 val2) (display-test-success! name-str qe1 qe2 val1 val2) (list ptVal ptVal)]
-       [else (display-test-failure! name-str qe1 qe2 val1 val2) (list 0 ptVal)]))))
+        [(equal? val1 val2) (display-test-success! name-str qe1 qe2 val1 val2) (list ptVal ptVal)]
+        [else (display-test-failure! name-str qe1 qe2 val1 val2) (list 0 ptVal)]))))
 
+;; (run-one exercise! ex-name-str test-ls)
+;; Runs all tests in test-ls with the exercise name equal to ex-name-str
 (define run-one-exercise!
   (lambda (ex-name-str test-ls)
     (let* ([tests (filter (lambda (test)
-            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
-           [results (fold-left 
-            (lambda (acc head) (list (+ (car acc) (car head)) (+ (cadr acc) (cadr head)))) 
-            '(0 0) 
-            (map run-one-test! tests))])
-           (display "-----------------\n")
-           (display "Total Points: ")
-           (display (car results))
-           (display "/")
-           (display (cadr results)))))
+                            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
+           [results (sum-results (map run-one-test! tests))])
+      (printPoints! results))))
+
+(define sum-results
+  (lambda (result-ls)
+    (fold-left 
+      (lambda (acc head) (list (+ (car acc) (car head)) (+ (cadr acc) (cadr head)))) 
+      '(0 0)
+      result-ls)))
+
+(define printPoints!
+  (lambda (results)
+    (display "-----------------\n")
+    (display "Total Points: ")
+    (display (car results))
+    (display "/")
+    (display (cadr results))))
 
 ;; (run-all-tests!)  
 ;; Runs all tests.  Note this is a 0-ary function, i.e., it takes no
@@ -138,20 +159,15 @@
 (define run-all-tests!* 
   (lambda (ls)
     (if (not (null? ls))
-	(let ([test (car ls)])
-	    (run-one-test! test)
-	    (run-all-tests!* (cdr ls))))))
+      (let ([test (car ls)])
+        (run-one-test! test)
+        (run-all-tests!* (cdr ls))))))
 
-  
-  
 ;; Sample tests for functions we wrote above
 ;(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1)) 
 ;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
-(add-batch-tests! "ex1"
-                  (list
-                    (list "Reverse test" '(reverse '(1 2 3)) ''(3 2 1))
-                    (list "Reverse test fail" '(reverse '(1 2)) ''(3))
-                    )
-                  )
+(add-batch-tests! "ex1" (list
+                          (list "Reverse test" '(reverse '(1 2 3)) ''(3 2 1))
+                          (list "Reverse test fail" '(reverse '(1 2)) ''(3))))
