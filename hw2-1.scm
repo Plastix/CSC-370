@@ -23,15 +23,22 @@
 
 (define clear-tests! (lambda () (set! my-tests! '())))
 
+;; Like map but calls the functions IN ORDER
+(define map*
+  (lambda (fn ls)
+    (cond
+      [(null? ls) '()]
+      [(cons (fn (car ls)) (map* fn (cdr ls)))])))
+
 ;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
 ;; Function which takes a string name-str naming a test, a string
 ;; ex-name-str naming the exercise, ptVal naming the point value of the problem 
 ;; and two quoted S-expressions. This function combines all inputs and 
-;; adds it to the head of the global variable my-tests!  
+;; adds it to the tail of the global variable my-tests!  
 ;; MAKE SURE TO USE QUOTED EXPRESSIONS!
 (define add-my-test!
   (lambda (name-str ex-name-str ptval qe1 qe2)
-    (set! my-tests! (cons (list name-str ex-name-str ptval qe1 qe2) my-tests!))))
+    (set! my-tests! (append my-tests! (list (list name-str ex-name-str ptval qe1 qe2))))))
 
 (define insert-at
   (lambda (elem pos ls)
@@ -54,7 +61,7 @@
       ([addTest! (lambda (test)
                    (set! test (insert-at 1 2 (insert-at ex-name-str 1 test))) 
                    (add-my-test!  (test->name-str test) (test->ex-name-str test) (test->ptVal test) (test->qe1 test) (test->qe2 test)))])
-      (map addTest! q-tests)))) ;; TODO don't add test if format is incorrect
+      (map* addTest! q-tests)))) ;; TODO don't add test if format is incorrect
 
 ;; Test helper methods
 (define test->name-str
@@ -110,6 +117,8 @@
 
 ;; (run-one-test! test)
 ;; Runs the given test (list)
+;; Returns the test result in a 2-element list
+;; (points-received, total-points)
 (define run-one-test!
   (lambda (test)
     (let* 
@@ -128,7 +137,7 @@
 (define run-one-exercise!
   (lambda (ex-name-str test-ls)
     (let* ([tests (tests-with-ex ex-name-str test-ls)]
-           [results (sum-results (map run-one-test! tests))])
+           [results (sum-results (map* run-one-test! tests))]) 
       (printPoints! results))))
 
 (define tests-with-ex
@@ -144,6 +153,7 @@
 
 (define printPoints!
   (lambda (results)
+    (display "\n")
     (display "-----------------\n")
     (display "Total Points: ")
     (display (car results))
@@ -162,24 +172,12 @@
 ;; TODO Reverse (ls) to run in order of file!! (we cons when we add tests)
 (define run-all-tests!* 
   (lambda (ls)
-    (let* ([exercises (remove-dupes (map (lambda (test) (test->ex-name-str test)) ls))]
-           [tests-by-ex (fold-left append '() 
-                               (map (lambda (ex-name) (tests-with-ex ex-name ls)) exercises))]
-           )
-      (display tests-by-ex)
-      (display "\n")
+    (let* ([sorted-tests (list-sort 
+                           (lambda (t1 t2) (string<? (test->ex-name-str t1) (test->ex-name-str t2))) ls)])
       (printPoints!
-             (sum-results 
-               (map run-one-test! tests-by-ex))))))
+        (sum-results 
+          (map* run-one-test! sorted-tests))))))
 
-(define remove-dupes
-  (lambda (ls)
-    (fold-right (lambda (head acc)
-                  (cons head (filter (lambda (el) (not (equal? head el))) acc))) 
-                '() 
-                ls)))
-
-;; Sample tests for functions we wrote above
 ;(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1)) 
 ;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
