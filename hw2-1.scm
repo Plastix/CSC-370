@@ -127,10 +127,13 @@
 ;; Runs all tests in test-ls with the exercise name equal to ex-name-str
 (define run-one-exercise!
   (lambda (ex-name-str test-ls)
-    (let* ([tests (filter (lambda (test)
-                            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
+    (let* ([tests (tests-with-ex ex-name-str test-ls)]
            [results (sum-results (map run-one-test! tests))])
       (printPoints! results))))
+
+(define tests-with-ex
+  (lambda (ex-name-str tests-ls)
+    (filter (lambda (test) (equal? (test->ex-name-str test) ex-name-str)) tests-ls)))
 
 (define sum-results
   (lambda (result-ls)
@@ -156,12 +159,25 @@
 
 ;; (run-all-tests!* ls)
 ;; Recursive function to recurse through tests running each one
+;; TODO Reverse (ls) to run in order of file!! (we cons when we add tests)
 (define run-all-tests!* 
   (lambda (ls)
-    (if (not (null? ls))
-      (let ([test (car ls)])
-        (run-one-test! test)
-        (run-all-tests!* (cdr ls))))))
+    (let* ([exercises (remove-dupes (map (lambda (test) (test->ex-name-str test)) ls))]
+           [tests-by-ex (fold-left append '() 
+                               (map (lambda (ex-name) (tests-with-ex ex-name ls)) exercises))]
+           )
+      (display tests-by-ex)
+      (display "\n")
+      (printPoints!
+             (sum-results 
+               (map run-one-test! tests-by-ex))))))
+
+(define remove-dupes
+  (lambda (ls)
+    (fold-right (lambda (head acc)
+                  (cons head (filter (lambda (el) (not (equal? head el))) acc))) 
+                '() 
+                ls)))
 
 ;; Sample tests for functions we wrote above
 ;(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1)) 
@@ -169,5 +185,9 @@
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
 (add-batch-tests! "ex1" (list
-                          (list "Reverse test" '(reverse '(1 2 3)) ''(3 2 1))
-                          (list "Reverse test fail" '(reverse '(1 2)) ''(3))))
+                          (list "EX1 TEST1" '(reverse '(1 2 3)) ''(3 2 1))
+                          (list "EX1 TEST2" '(reverse '(1 2)) ''(3))))
+
+(add-my-test! "EX2 TEST1" "ex2" 1 '(length '(1 2)) '2)
+
+(add-my-test! "EX1 TEST3" "ex1" 1 '(length '()) '0)
