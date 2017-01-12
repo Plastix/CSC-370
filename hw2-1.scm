@@ -30,6 +30,21 @@
   (lambda (name-str ex-name-str ptval qe1 qe2)
     (set! my-tests! (cons (list name-str ex-name-str ptval qe1 qe2) my-tests!))))
 
+(define insert-at
+  (lambda (elem pos ls)
+    (cond
+      [(null? ls) (list elem)]
+      [(zero? pos) (cons elem ls)]
+      [else (cons (car ls) (insert-at elem (- pos 1) (cdr ls)))])))
+
+(define add-batch-tests!
+  (lambda (ex-name-str q-tests)
+    (let 
+      ([addTest! (lambda (test)
+       (set! test (insert-at 1 2 (insert-at ex-name-str 1 test))) 
+        (add-my-test!  (test->name-str test) (test->ex-name-str test) (test->ptVal test) (test->qe1 test) (test->qe2 test)))])
+      (map addTest! q-tests)))) ;; TODO don't add test if format is incorrect
+
 ;; Test helper methods
 (define test->name-str
   (lambda (test)
@@ -92,8 +107,7 @@
      [qe2 (test->qe2 test)]
      [val1 (eval qe1)]  ;; This is why the quote are necessary.
 	 [val2 (eval qe2)]
-     [ptVal (test->ptVal test)]
-     )
+     [ptVal (test->ptVal test)])
       (cond
        [(equal? val1 val2) (display-test-success! name-str qe1 qe2 val1 val2) (list ptVal ptVal)]
        [else (display-test-failure! name-str qe1 qe2 val1 val2) (list 0 ptVal)]))))
@@ -101,11 +115,11 @@
 (define run-one-exercise!
   (lambda (ex-name-str test-ls)
     (let* ([tests (filter (lambda (test)
-                            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
+            (equal? (test->ex-name-str test) ex-name-str)) test-ls)]
            [results (fold-left 
-                      (lambda (acc head) (list (+ (car acc) (car head)) (+ (cadr acc) (cadr head)))) 
-                      '(0 0) 
-                      (map run-one-test! tests))])
+            (lambda (acc head) (list (+ (car acc) (car head)) (+ (cadr acc) (cadr head)))) 
+            '(0 0) 
+            (map run-one-test! tests))])
            (display "-----------------\n")
            (display "Total Points: ")
            (display (car results))
@@ -131,8 +145,13 @@
   
   
 ;; Sample tests for functions we wrote above
-(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1))
-(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
+;(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1)) 
+;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
-
+(add-batch-tests! "ex1"
+                  (list
+                    (list "Reverse test" '(reverse '(1 2 3)) ''(3 2 1))
+                    (list "Reverse test fail" '(reverse '(1 2)) ''(3))
+                    )
+                  )
