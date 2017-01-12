@@ -26,7 +26,7 @@
 ;; Like map but ensures that the functions are called IN ORDER
 (define map*
   (lambda (fn ls)
-      (reverse (fold-left (lambda (acc head) (cons (fn head) acc)) '() ls))))
+    (reverse (fold-left (lambda (acc head) (cons (fn head) acc)) '() ls))))
 
 ;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
 ;; Function which takes a string name-str naming a test, a string
@@ -38,28 +38,26 @@
   (lambda (name-str ex-name-str ptval qe1 qe2)
     (set! my-tests! (append my-tests! (list (list name-str ex-name-str ptval qe1 qe2))))))
 
-(define insert-at
-  (lambda (elem pos ls)
-    (cond
-      [(null? ls) (list elem)]
-      [(zero? pos) (cons elem ls)]
-      [else (cons (car ls) (insert-at elem (- pos 1) (cdr ls)))])))
-
-;; Tests whether the given test is in the following format:
-;; (name-str qe1 qe2)
-;; TODO NEEDS TO BE COMPLETED
-(define valid-test?
+;; Like add-my-test! but takes a test list instead of individual arguments
+;; Delegates to add-my-test!
+(define add-my-test!*
   (lambda (test)
-    (and (= (length test) 3) ; We have 3 things
-         (string? (car test)))))
+    (let ([name-str (test->name-str test)]
+          [ex-name-str (test->ex-name-str test)]
+          [ptval (test->ptVal test)]
+          [qe1 (test->qe1 test)]
+          [qe2 (test->qe2 test)])
+      (add-my-test! name-str ex-name-str ptval qe1 qe2))))
 
 (define add-batch-tests!
   (lambda (ex-name-str q-tests)
-    (let 
-      ([addTest! (lambda (test)
-                   (set! test (insert-at 1 2 (insert-at ex-name-str 1 test))) 
-                   (add-my-test!  (test->name-str test) (test->ex-name-str test) (test->ptVal test) (test->qe1 test) (test->qe2 test)))])
-      (map* addTest! q-tests)))) ;; TODO don't add test if format is incorrect
+    (letrec
+      ([loop (lambda (tests)
+               (if (not (null? tests))
+                 (let ([qes (list (car tests) (caddr tests))]) ; Pull out quoted expressions
+                   (add-my-test!* (append (list "" ex-name-str 1) qes)) ; Append other test data
+                   (loop (cdddr tests)))))])
+      (loop q-tests))))
 
 ;; Test helper methods
 (define test->name-str
@@ -185,14 +183,16 @@
 ;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
-(add-batch-tests! "ex1" (list
-                          (list "EX1 TEST1" '(reverse '(1 2 3)) ''(3 2 1))
-                          (list "EX1 TEST2" '(reverse '(1 2)) ''(3))))
+(add-batch-tests! "ex1" '(
+                          (reverse '(1 2 3)) => '(3 2 1)
+                          (reverse '(1 2)) => '(3)
+                          ))
 
-(add-my-test! "EX2 TEST1" "ex2" 1 '(length '(1 2)) '2)
+(add-my-test! "" "ex2" 1 '(length '(1 2)) '2)
 
-(add-batch-tests! "ex2" (list
-                          (list "EX2 TEST2" '(equal? 1 1) '#t)
-                          (list "EX2 TEST3" '(eqv? 1 0) '#t)))
+(add-batch-tests! "ex2" '(
+                          (equal? 1 1) => '#t
+                          (eqv? 1 0) => '#t
+                          ))
 
-(add-my-test! "EX1 TEST3" "ex1" 1 '(length '()) '0)
+(add-my-test! "" "ex1" 1 '(length '()) '0)
