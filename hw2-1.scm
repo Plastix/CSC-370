@@ -183,16 +183,16 @@
 ;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
-(add-batch-tests! "ex1" '(
-                          (reverse '(1 2 3)) => '(3 2 1)
-                          (reverse '(1 2)) => '(3)
-                          ))
+#|(add-batch-tests! "ex1" '(|#
+                          ;(reverse '(1 2 3)) => '(3 2 1)
+                          ;(reverse '(1 2)) => '(3)
+                          ;))
 
-(add-my-test! "" "ex2" 1 '(length '(1 2)) '2)
+;(add-my-test! "" "ex2" 1 '(length '(1 2)) '2)
 
-(add-batch-tests! "ex2" '(
-                          (equal? 1 1) => '#t
-                          (eqv? 1 0) => '#t
-                          ))
+#|(add-batch-tests! "ex2" '(|#
+                          ;(equal? 1 1) => '#t
+                          ;(eqv? 1 0) => '#t
+                          ;))
 
-(add-my-test! "" "ex1" 1 '(length '()) '0)
+;(add-my-test! "" "ex1" 1 '(length '()) '0)
