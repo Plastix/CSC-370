@@ -23,10 +23,10 @@
 
 (define clear-tests! (lambda () (set! my-tests! '())))
 
-;; Like map but calls the functions IN ORDER
+;; Like map but ensures that the functions are called IN ORDER
 (define map*
   (lambda (fn ls)
-      (fold-left (lambda (acc head) (append acc (list (fn head)))) '() ls)))
+      (reverse (fold-left (lambda (acc head) (cons (fn head) acc)) '() ls))))
 
 ;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
 ;; Function which takes a string name-str naming a test, a string
@@ -136,12 +136,15 @@
   (lambda (ex-name-str test-ls)
     (let* ([tests (tests-with-ex ex-name-str test-ls)]
            [results (sum-results (map* run-one-test! tests))]) 
-      (printPoints! results))))
+      (display-points! results))))
 
+;; Returns all tests from test-ls matching the given ex-name-str
 (define tests-with-ex
   (lambda (ex-name-str tests-ls)
     (filter (lambda (test) (equal? (test->ex-name-str test) ex-name-str)) tests-ls)))
 
+;; Sums up points awarded and total points given a list of test results
+;; See run-one-test! for test result format
 (define sum-results
   (lambda (result-ls)
     (fold-left 
@@ -149,7 +152,9 @@
       '(0 0)
       result-ls)))
 
-(define printPoints!
+;; Displays a human readable version of points award
+;; Expects a two element list (points-awarded total-points)
+(define display-points!
   (lambda (results)
     (display "\n")
     (display "-----------------\n")
@@ -166,13 +171,13 @@
     (run-all-tests!* my-tests!)))
 
 ;; (run-all-tests!* ls)
-;; Recursive function to recurse through tests running each one
-;; TODO Reverse (ls) to run in order of file!! (we cons when we add tests)
 (define run-all-tests!* 
   (lambda (ls)
+    ; list-sort is a stable sort so sorting by exercise name will keep the
+    ; with the same exercise tests in the correct order
     (let* ([sorted-tests (list-sort 
                            (lambda (t1 t2) (string<? (test->ex-name-str t1) (test->ex-name-str t2))) ls)])
-      (printPoints!
+      (display-points!
         (sum-results 
           (map* run-one-test! sorted-tests))))))
 
