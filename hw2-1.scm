@@ -26,9 +26,7 @@
 ;; Like map but calls the functions IN ORDER
 (define map*
   (lambda (fn ls)
-    (cond
-      [(null? ls) '()]
-      [(cons (fn (car ls)) (map* fn (cdr ls)))])))
+      (fold-left (lambda (acc head) (append acc (list (fn head)))) '() ls)))
 
 ;; (add-my-test! name-str ex-name-str ptval qe1 qe2)
 ;; Function which takes a string name-str naming a test, a string
@@ -187,5 +185,9 @@
                           (list "EX1 TEST2" '(reverse '(1 2)) ''(3))))
 
 (add-my-test! "EX2 TEST1" "ex2" 1 '(length '(1 2)) '2)
+
+(add-batch-tests! "ex2" (list
+                          (list "EX2 TEST2" '(equal? 1 1) '#t)
+                          (list "EX2 TEST3" '(eqv? 1 0) '#t)))
 
 (add-my-test! "EX1 TEST3" "ex1" 1 '(length '()) '0)
