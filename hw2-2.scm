@@ -29,11 +29,8 @@
 ; GRADE
 (define x-odds
   (lambda (nums)
-    (map 
-      (lambda (n)
-        (if (odd? n)
-          'x
-          n)) nums)))
+    (map (lambda (n) (if (odd? n) 'x n)) 
+         nums)))
 
 (add-batch-tests! "EX3" '(
                           (x-odds '(1 2 3 4 5 9)) => '(x 2 x 4 x x)
@@ -48,33 +45,37 @@
       (lambda (sym)
         (if (equal? old sym)
           new
-          sym)) syms)))
+          sym)) 
+      syms)))
 
 (add-batch-tests! "EX4" '(
                           (replace 'red 'blue '(red fish blue fish)) => '(blue fish blue fish)
                           (replace 'spam 'ham '(green eggs and ham)) => '(green eggs and ham)
+                          (replace 'spam 'ham '(green eggs spam and ham)) => '(green eggs ham and ham)
                           (replace 'ham 'spam '(green eggs and ham)) => '(green eggs and spam)
+                          (replace 'ham 'spam '(ham)) => '(spam)
+                          (replace 'ham 'spam '()) => '()
                           ))
 ;; GRADE
 (define remove
   (lambda (elt ls)
     (filter 
       (lambda (x) (not (equal? x elt)))
-        ls)))
+      ls)))
 
 (add-batch-tests! "EX5" '(
                           (remove 'cream '(i scream for ice cream)) => '(i scream for ice)
                           (remove 'scream '(i scream you scream we all scream)) => '(i you we all)
                           (remove 'a '(a a a a a)) => '()
                           (remove 's '(1 2 3)) => '(1 2 3)
+                          (remove 'a '()) => '()
                           ))
 ;; GRADE
 (define listoflists?
   (lambda (lls)
     (fold-left
       (lambda (acc head)
-        (and (list? head)
-             acc))
+        (and (list? head) acc))
       #t
       lls)))
 
@@ -108,11 +109,11 @@
                           ))
 (define average
   (lambda (nums)
-    (let (
-          [len (if (zero? (length nums)) 1 (length nums))])
+    (let ([len (if (zero? (length nums)) 
+                 1 
+                 (length nums))])
       (/ (fold-right
-           (lambda (acc head)
-             (+ acc head))
+           (lambda (acc head) (+ acc head))
            0
            nums)
          len))))
@@ -128,12 +129,11 @@
                           ))
 (define average-tr
   (lambda (nums)
-    (let* ([result 
-             (fold-left
-               (lambda (acc head)
-                 (list (+ (car acc) head) (+ 1 (cadr acc))))
-               '(0 0)
-               nums)]
+    (let* ([result (fold-left
+                     (lambda (acc head)
+                       (list (+ (car acc) head) (+ 1 (cadr acc))))
+                     '(0 0)
+                     nums)]
            [sum (car result)]
            [len (if (zero? (cadr result)) 1 (cadr result))])
       (/ sum len))))
@@ -152,8 +152,8 @@
     (fold-right
       (lambda (head acc)
         (append acc (list head)))
-        '()
-        ls)))
+      '()
+      ls)))
 
 (add-batch-tests! "EX10" '(
                            (reverse '(1 2 3)) => '(3 2 1)
