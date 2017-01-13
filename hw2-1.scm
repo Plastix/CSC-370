@@ -173,26 +173,48 @@
   (lambda (ls)
     ; list-sort is a stable sort so sorting by exercise name will keep the
     ; tests with the same exercise name in their original order
-    (let* ([sorted-tests (list-sort 
-                           (lambda (t1 t2) (string<? (test->ex-name-str t1) (test->ex-name-str t2))) ls)])
+    (let* ([exs (remove-duplicates (map (lambda (test) (test->ex-name-str test)) ls))]
+           [sorted-tests (map (lambda (test) (cdr test))
+                            (list-sort (lambda (t1 t2) (< (car t1) (car t2))) 
+                           (map 
+                             (lambda (test) (cons (index-of (test->ex-name-str test) exs) test)) ls)))])
       (display-points!
         (sum-results 
           (map* run-one-test! sorted-tests))))))
+
+(define index-of
+  (lambda (el ls)
+    (index-of* el ls 0)))
+
+(define index-of*
+  (lambda (el ls i)
+    (cond
+      [(null? ls) -1]
+      [(equal? el (car ls)) i]
+      [else (index-of* el (cdr ls) (+ i 1))])))
+
+(define remove-duplicates
+  (lambda (ls)
+    (fold-right 
+      (lambda (head acc) 
+        (cons head (filter (lambda (x) (not (equal? head x))) acc)))
+      '()
+      ls)))
 
 ;(add-my-test! "Reverse test" "ex1" 10 '(reverse '(1 2 3)) ''(3 2 1)) 
 ;(add-my-test! "Reverse test fail" "ex1" 20 '(reverse '(1 2)) ''(3))
 ;(add-my-test! "Fib test" '(fib 4) '3)
 ;(add-my-test! "Fib test *SHOULD FAIL*" '(fib 5) ''(1 3 4)) ;; should fail
-#|(add-batch-tests! "ex1" '(|#
-                          ;(reverse '(1 2 3)) => '(3 2 1)
-                          ;(reverse '(1 2)) => '(3)
-                          ;))
+(add-batch-tests! "ex1" '(
+                          (reverse '(1 2 3)) => '(3 2 1)
+                          (reverse '(1 2)) => '(3)
+                          ))
 
-;(add-my-test! "" "ex2" 1 '(length '(1 2)) '2)
+(add-my-test! "" "ex2" 1 '(length '(1 2)) '2)
 
-#|(add-batch-tests! "ex2" '(|#
-                          ;(equal? 1 1) => '#t
-                          ;(eqv? 1 0) => '#t
-                          ;))
+(add-batch-tests! "ex2" '(
+                          (equal? 1 1) => '#t
+                          (eqv? 1 0) => '#t
+                          ))
 
-;(add-my-test! "" "ex1" 1 '(length '()) '0)
+(add-my-test! "" "ex1" 1 '(length '()) '0)
