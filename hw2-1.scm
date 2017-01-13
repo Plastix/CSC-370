@@ -169,9 +169,17 @@
     (run-all-tests!* my-tests!)))
 
 ;; (run-all-tests!* ls)
+;; Runs all tests in the given list of tests
 (define run-all-tests!* 
   (lambda (ls)
-    ; list-sort is a stable sort so sorting by exercise name will keep the
+    ; exs is the ordered set of exercise strings from the list of tests
+    ; The index of each string in exs is the key used to sort the tests
+    ; 
+    ; We first map over all tests and cons the exercise "index" to the front of the test.
+    ; Then, we sort the tests by this index. We retrieve the original tests by 
+    ; cdring off the index from front of the test.
+    ; 
+    ; list-sort is a stable sort so sorting by exercise index will keep the
     ; tests with the same exercise name in their original order
     (let* ([exs (remove-duplicates (map (lambda (test) (test->ex-name-str test)) ls))]
            [sorted-tests (map (lambda (test) (cdr test))
