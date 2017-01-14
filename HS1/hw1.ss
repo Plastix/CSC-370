@@ -72,10 +72,9 @@
 
 ;; Exercise 21
 (let ([a #t] [b #f] [c #f])
-  (or 
-    (or (not (eqv? a (not b))) 
-        (and c (not a))) 
-    b))
+  (or (not (eqv? a (not b))) 
+      (and c (not a)) 
+      b))
 
 ;; Exercise 22
 (if (string? x)
@@ -85,14 +84,14 @@
 ;; Exercise 23
 (define positive?
   (lambda (e)
-  (and (number? e) (> e 0)))) ; short-circuiting logic
+    (and (number? e) (> e 0)))) ; short-circuiting logic
 
 ;; Exercise 24
 (define numMonth->strMonth
   (lambda (n)
     (cond
       [(= n 1) "January"]
-      [(= n 2) "Febuary"]
+      [(= n 2) "February"]
       [(= n 3) "March" ]
       [(= n 4) "April"]
       [(= n 5) "May"]
@@ -143,10 +142,10 @@
 ;; Exercise 30
 (define filter
   (lambda (p? ls) 
-     (cond
-       [(null? ls) (list)]
-       [(p? (car ls)) (cons (car ls) (filter p? (cdr ls)))]
-       [else (filter p? (cdr ls))])))
+    (cond
+      [(null? ls) (list)]
+      [(p? (car ls)) (cons (car ls) (filter p? (cdr ls)))]
+      [else (filter p? (cdr ls))])))
 
 ;; Exercise 31
 (define counts
@@ -157,10 +156,10 @@
 (define fib2
   (lambda (n)
     (letrec ([fib (lambda (num) ; Use letrec so we can recurse from let-expression
-                   (cond
-                     [(<= num 1) 0]
-                     [(= num 2) 1]
-                     [else (+ (fib (- num 1)) (fib (- num 2)) (fib (- num 3)))]))])
+                    (cond
+                      [(<= num 1) 0]
+                      [(= num 2) 1]
+                      [else (+ (fib (- num 1)) (fib (- num 2)) (fib (- num 3)))]))])
       (map fib (range 1 n)))))
 
 ;; Exercise 33
