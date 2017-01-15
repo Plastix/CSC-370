@@ -132,14 +132,16 @@
 ;; Runs all tests in test-ls with the exercise name equal to ex-name-str
 (define run-one-exercise!
   (lambda (ex-name-str test-ls)
-    (let* ([tests (tests-with-ex ex-name-str test-ls)]
-           [results (sum-results (map* run-one-test! tests))]) 
-      (display-points! results))))
+    (let ([tests (tests-with-ex ex-name-str test-ls)]) 
+      (display-points! 
+        (sum-results (map* run-one-test! tests))))))
 
 ;; Returns all tests from test-ls matching the given ex-name-str
 (define tests-with-ex
   (lambda (ex-name-str tests-ls)
-    (filter (lambda (test) (equal? (test->ex-name-str test) ex-name-str)) tests-ls)))
+    (filter 
+      (lambda (test) (equal? (test->ex-name-str test) ex-name-str)) 
+      tests-ls)))
 
 ;; Sums up points awarded and total points given a list of test results
 ;; See run-one-test! for test result format
@@ -183,9 +185,9 @@
     ; tests with the same exercise name in their original order
     (let* ([exs (remove-duplicates (map (lambda (test) (test->ex-name-str test)) ls))]
            [sorted-tests (map (lambda (test) (cdr test))
-                            (list-sort (lambda (t1 t2) (< (car t1) (car t2))) 
-                           (map 
-                             (lambda (test) (cons (index-of (test->ex-name-str test) exs) test)) ls)))])
+                              (list-sort (lambda (t1 t2) (< (car t1) (car t2))) 
+                                         (map 
+                                           (lambda (test) (cons (index-of (test->ex-name-str test) exs) test)) ls)))])
       (display-points!
         (sum-results 
           (map* run-one-test! sorted-tests))))))
@@ -205,7 +207,7 @@
   (lambda (ls)
     (fold-right 
       (lambda (head acc) 
-        (cons head (filter (lambda (x) (not (equal? head x))) acc)))
+        (cons head (remove head acc)))
       '()
       ls)))
 
