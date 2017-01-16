@@ -2,6 +2,7 @@
 ;; Aidan Pieper
 ;; 1/18/17
 
+(load "hw2-1.scm")
 (clear-tests!)
 
 ;; GRADE
