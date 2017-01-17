@@ -17,15 +17,21 @@ Aidan Pieper
 6. <S-Exp> ::= <Literal>                            ;; Scheme Literals
             | <ID>                                  ;; Variable
             | (define <ID> <S-Exp>)                 ;; Variable definition 
-            | (lambda (<ID>+) <S-Exp>+)     ;; Lambda
+            | (lambda (<ID>+) <S-Exp>+)             ;; Lambda
             | (<S-Exp> <S-Exp>*)                    ;; Function Application
-            | (let ([<ID> <S-Exp>]+) <S-Exp>+)               ;; Let syntax
+            | (let (<Let-Arg>*) <S-Exp>+)      ;; Let syntax
+   <Let-Arg> ::= <Let-Arg><Let-Arg> | [<ID> <S-Exp>]
 
-7. <JClass> ::= <Import>* <Modifer> <Class-Type> class <ID>{<Field>* <METHOD>*}
+7. <JClass> ::= <Import>* <Modifer> <Class-Type> class <ID><Inheritence>{<Body>}
    <Import> ::= <Import><Import> | import <ID>;
    <Modifer> ::= ε | public | private | protected 
    <Field> ::= <Modifer> <Static> <Type> <ID>; 
-            | <Modifier> <Static> <Type> <ID> = <J-Exp>;
+            | <Modifier> <Static> <Type> <ID> = <Cast> <J-Exp>;
+            | <Modifier> <Static> <Type> <ID> = <New-ID> * <J-Exp>;
+   <New-ID> ::= <New-ID><New-ID> | <ID> =
+   <Inheritence> ::= ε | extends <ID>
+   <Body> ::= <Body><Body> | <Field>* <METHOD>*
+   <Cast> ::= ε | (<Type>)
    <Static> ::= ε | static
    <Class-Type> ::= ε | abstract | final 
-   <Type> ::= byte | char | short | int | long | float | double | boolean | <ID>
+   <Type> ::= byte | char | short | int | long | float | double | boolean | <ID> | <Type>[]
