@@ -21,10 +21,11 @@ Aidan Pieper
             | (<S-Exp> <S-Exp>*)                    ;; Function Application
             | (let ([<ID> <S-Exp>]+) <S-Exp>+)               ;; Let syntax
 
-7. <JClass> ::= <Import>* <Modifer> class <ID>{<Field>* <METHOD>*}
+7. <JClass> ::= <Import>* <Modifer> <Class-Type> class <ID>{<Field>* <METHOD>*}
    <Import> ::= <Import><Import> | import <ID>;
    <Modifer> ::= ε | public | private | protected 
    <Field> ::= <Modifer> <Static> <Type> <ID>; 
             | <Modifier> <Static> <Type> <ID> = <J-Exp>;
    <Static> ::= ε | static
+   <Class-Type> ::= ε | abstract | final 
    <Type> ::= byte | char | short | int | long | float | double | boolean | <ID>
