@@ -8,8 +8,8 @@ Aidan Pieper
  
 3. <P> ::= ε | 1 | 0 | 1<P>1 | 0<P>0
 
-4. <Hex> ::= +<Letter> | -<Letter>
-   <Letter> ::= <Letter><Letter> | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F
+4. <Hex> ::= +<Digit> | -<Digit>
+   <Digit> ::= <Digit><Digit> | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F
 
 5. <PyFunc> ::= def <ID>(): | def <ID>(<Param>):
    <Param> ::= <ID> | <ID>,<Param>
