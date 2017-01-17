@@ -1,6 +1,6 @@
 CSC 370 HS 2
 Aidan Pieper
-
+1/18/17
 
 1. <B> ::= ε | <B>1<B> | <B>0<B>
 
@@ -14,3 +14,17 @@ Aidan Pieper
 5. <PyFunc> ::= def <ID>(): | def <ID>(<Param>):
    <Param> ::= <ID> | <ID>,<Param>
 
+6. <S-Exp> ::= <Literal>                            ;; Scheme Literals
+            | <ID>                                  ;; Variable
+            | (define <ID> <S-Exp>)                 ;; Variable definition 
+            | (lambda (<ID>+) <S-Exp>+)     ;; Lambda
+            | (<S-Exp> <S-Exp>*)                    ;; Function Application
+            | (let ([<ID> <S-Exp>]+) <S-Exp>+)               ;; Let syntax
+
+7. <JClass> ::= <Import>* <Modifer> class <ID>{<Field>* <METHOD>*}
+   <Import> ::= <Import><Import> | import <ID>;
+   <Modifer> ::= ε | public | private | protected 
+   <Field> ::= <Modifer> <Static> <Type> <ID>; 
+            | <Modifier> <Static> <Type> <ID> = <J-Exp>;
+   <Static> ::= ε | static
+   <Type> ::= byte | char | short | int | long | float | double | boolean | <ID>
