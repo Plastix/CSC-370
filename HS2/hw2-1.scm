@@ -183,7 +183,7 @@
     ; 
     ; list-sort is a stable sort so sorting by exercise index will keep the
     ; tests with the same exercise name in their original order
-    (let* ([exs (remove-duplicates (map (lambda (test) (test->ex-name-str test)) ls))]
+    (let* ([exs (remove-duplicates (map test->ex-name-str ls))]
            [sorted-tests (map (lambda (test) (cdr test))
                               (list-sort (lambda (t1 t2) (< (car t1) (car t2))) 
                                          (map 
