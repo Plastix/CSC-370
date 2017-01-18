@@ -43,6 +43,9 @@
                           (get-lvars '(z (lambda (x) x))) => '(z x)
                           (get-lvars '((lambda (f)  (lambda (x) ((g (g x)) y))) z)) => '(g g x y z)
                           ))
+
+;; TODO AVOID DUPLICATES
+;; Call remove on recursive call before appending??
 (define get-lparams
   (lambda (exp)
     (cond
@@ -66,5 +69,77 @@
                           (get-lparams '(lambda (x) (y z))) => '(x)
                           (get-lparams '((lambda (f) (lambda (x) ((g (g x)) y))) z) ) => '(f x)
                           (get-lparams '(lambda (x) (lambda (y) (lambda (x) z)))) => '(x y x)
+                          ))
+(define replace-vars
+  (lambda (exp)
+    (letrec ([counter
+               (lambda (n exp)
+                 (cond
+                   [(var-exp? exp) n]
+                   [(lambda-exp? exp) (list 
+                                        (car exp) 
+                                        (cadr exp)
+                                        (counter (+ 1 n) (lambda->body exp)))]
+                   [(apply-exp? exp) (append (list (counter n (car exp))) 
+                                       (list (counter n (cadr exp))))])
+                 )])
+      (counter 0 exp)))) 
+
+;; TODO MORE TESTS!!
+(add-batch-tests! "EX3" '(
+                          (replace-vars '(f x)) > '(0 0)
+                          (replace-vars '(lambda (x) y)) => '(lambda (x) 1)
+                          (replace-vars '(lambda (a) (lambda (b) c))) => '(lambda (a) (lambda (b) 2))
+                          (replace-vars '(a ((lambda (a) b) c))) => '(0  ((lambda (a) 1) 0))
+                          (replace-vars '((lambda (z) (lambda (y) ((lambda (x) (x y)) (x z)))) z))
+                                      => '((lambda (z) (lambda (y) ((lambda (x) (3 3)) (2 2)))) 0)
+                          ))
+
+(define free-vars
+  (lambda (exp)
+    (free exp '())))
+
+(define free
+  (lambda (exp formals-seen)
+    (cond
+      [(var-exp? exp) (cond
+                        [(member exp formals-seen) (list)]
+                        [else (list exp)])]
+      [(lambda-exp? exp) (free (lambda->body exp) (cons (car (lambda->param exp)) formals-seen))]
+      [(apply-exp? exp) (append (free (car exp) formals-seen) 
+                              (free (cadr exp) formals-seen))])))
+
+(add-batch-tests! "EX4" '(
+                          (free-vars 'x) => '(x)
+                          (free-vars '(x (y z))) => '(x y z)
+                          (free-vars '((lambda (x) x) y)) => '(y)
+                          (free-vars '((lambda (z) z) (lambda (x) x))) => '()
+                          (free-vars '((lambda (f) (lambda (x)  (f x))) y)) => '(y)
+                          (free-vars '(lambda (x) z)) => '(z)
+                          (free-vars '(lambda (x) (lambda (y) ((lambda (z) (x y)) z)))) => '(z)
+                          ))
+
+(define bound-vars
+  (lambda (exp)
+            (bound exp '())))
+
+(define bound
+  (lambda (exp formals-seen)
+    (cond
+      [(var-exp? exp) (cond
+                        [(member exp formals-seen) (list exp)]
+                        [else (list)])]
+      [(lambda-exp? exp) (bound (lambda->body exp) (cons (car (lambda->param exp)) formals-seen))]
+      [(apply-exp? exp) (append (bound (car exp) formals-seen)
+                                (bound (cadr exp) formals-seen))])))
+
+(add-batch-tests! "EX5" '(
+                          (bound-vars 'x)  =>  '()
+                          (bound-vars '(x (y z))) => '()
+                          (bound-vars '((lambda (x) x) y)) => '(x)
+                          (bound-vars '((lambda (z) z) (lambda (x) x))) => '(z x)
+                          (bound-vars '((lambda (f) (lambda (x)  (f x))) y)) => '(f x)
+                          (bound-vars '(lambda (x) z)) => '()
+                          (bound-vars '(lambda (x) (lambda (y) ((lambda (z) (x y)) z)))) => '(x y)
                           ))
 
