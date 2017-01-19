@@ -138,8 +138,14 @@
       [(is-Zero? b) a]
       [else (sum (successor a) (predecessor b))])))
 
-;; TODO DEFINE prod
-;; !!!!!!!!!!!!!!!!!!!!!!!!!
+(define prod
+  (lambda (a b)
+    (cond
+      [(or (is-Zero? a)
+           (is-Zero? b) ) 
+       (zero)]
+      [else (sum a (prod a (predecessor b)))])))
+
 (add-batch-tests! "EX3" '(
                           (equals? (zero) (zero)) => #t
                           (equals? (zero) '(1)) => #f
@@ -159,11 +165,24 @@
                           (less-than? '(1 0 1 1 1 1) '(1 0 0 1 1 1)) => #f
                           (sum (zero) (zero)) => (zero)
                           (sum (zero) '(1)) => '(1)
+                          (sum '(1) (zero)) => '(1)
                           (sum '(1) '(1)) => '(1 0)
                           (sum '(1 1) '(1 1)) => '(1 1 0)
                           (sum '(1 0 0) '(1)) => '(1 0 1)
+                          (sum '(1) '(1 0 0)) => '(1 0 1)
                           (sum '(1 0 1 0) '(1 1 1)) => '(1 0 0 0 1)
-                          )) 
+                          (sum '(1 1 1) '(1 0 1 0)) => '(1 0 0 0 1)
+                          (prod (zero) (zero)) => (zero)
+                          (prod (zero) '(1 0)) => (zero)
+                          (prod '(1 0) (zero)) => (zero)
+                          (prod '(1) '(1 0)) => '(1 0)
+                          (prod '(1 0) '(1)) => '(1 0)
+                          (prod '(1 1 0) '(1 0 0 0)) => '(1 1 0 0 0 0)
+                          (prod '(1 0 0 0) '(1 1 0)) => '(1 1 0 0 0 0)
+                          (prod '(1) '(1)) => '(1)
+                          (prod '(1 0 0 0 0 0 0) '(1 0 0 0 0 0 0)) => '(1 0 0 0 0 0 0 0 0 0 0 0 0))
+                  
+                  ) 
 ;; Exercise 4
 (define equals-binary?
   (lambda (a b)
@@ -185,3 +204,9 @@
             (= car b) 1) #t]
       [else #f])))
 
+;; TODO DEFINE sum-binary
+;; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+;; TODO DEFINE prod-binary
+;; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
