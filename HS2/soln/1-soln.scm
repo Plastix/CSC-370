@@ -186,9 +186,9 @@
 
 
 
-(load "2-test.ss")
-(load "2.ss")
+; (load "2-test.ss")
+; (load "2.ss")
 
 (display "Loaded 1-soln.ss\n")
-(display "Loaded 2-test.ss\n")
-(display "Loaded 2.ss\n")
+; (display "Loaded 2-test.ss\n")
+; (display "Loaded 2.ss\n")

@@ -3,7 +3,8 @@
 ;; 1/25/17
 
 ; Load the Unit Tester
-(load "../HS2/hw2-1.scm") 
+(load "../HS2/soln/1-soln.scm") 
+(clear!)
 
 ;; Some Test Cases
 (define lc1 'x)
