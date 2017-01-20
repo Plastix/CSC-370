@@ -70,6 +70,9 @@
                           (get-lparams '(lambda (x) (y z))) => '(x)
                           (get-lparams '((lambda (f) (lambda (x) ((g (g x)) y))) z) ) => '(f x)
                           (get-lparams '(lambda (x) (lambda (y) (lambda (x) z)))) => '(x y x)
+                          (get-lparams '((lambda (x) x) (lambda (y) y))) => '(x y)
+                          (get-lparams '((lambda (f) f) (lambda (f) f))) => '(f f)
+                          (get-lparams '((lambda (f) f) (lambda (f) (lambda (f) f)))) => '(f f f)
                           ))
 (define replace-vars
   (lambda (exp)
