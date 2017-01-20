@@ -30,3 +30,12 @@
 (define lambda->param
   (lambda (l)
     (cadr l)))
+
+(define remove-duplicates
+  (lambda (ls)
+    (fold-right 
+      (lambda (head acc) 
+        (cons head (remove head acc)))
+      '()
+      ls)))
+

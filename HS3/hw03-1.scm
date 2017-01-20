@@ -45,16 +45,18 @@
                           (get-lvars '((lambda (f)  (lambda (x) ((g (g x)) y))) z)) => '(g g x y z)
                           ))
 
-;; TODO AVOID DUPLICATES
-;; Call remove on recursive call before appending??
 (define get-lparams
+  (lambda (exp)
+    (remove-duplicates (get-lparams* exp))))
+
+(define get-lparams*
   (lambda (exp)
     (cond
       [(var-exp? exp) (list)]
       [(lambda-exp? exp) (append (lambda->param exp) 
-                                 (get-lparams (lambda->body exp)))]
-      [(apply-exp? exp) (append (get-lparams (car exp))
-                                (get-lparams (cadr exp)))])))
+                                 (get-lparams* (lambda->body exp)))]
+      [(apply-exp? exp) (append (get-lparams* (car exp))
+                                (get-lparams* (cadr exp)))])))
 
 (add-batch-tests! "EX2" '(
                           (get-lparams lc1) => '()
@@ -69,10 +71,10 @@
                           (get-lparams lc10) => '(x y)
                           (get-lparams '(lambda (x) (y z))) => '(x)
                           (get-lparams '((lambda (f) (lambda (x) ((g (g x)) y))) z) ) => '(f x)
-                          (get-lparams '(lambda (x) (lambda (y) (lambda (x) z)))) => '(x y x)
+                          (get-lparams '(lambda (x) (lambda (y) (lambda (x) z)))) => '(x y)
                           (get-lparams '((lambda (x) x) (lambda (y) y))) => '(x y)
-                          (get-lparams '((lambda (f) f) (lambda (f) f))) => '(f f)
-                          (get-lparams '((lambda (f) f) (lambda (f) (lambda (f) f)))) => '(f f f)
+                          (get-lparams '((lambda (f) f) (lambda (f) f))) => '(f)
+                          (get-lparams '((lambda (f) f) (lambda (f) (lambda (f) f)))) => '(f)
                           ))
 (define replace-vars
   (lambda (exp)
