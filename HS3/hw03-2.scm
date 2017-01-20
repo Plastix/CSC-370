@@ -31,15 +31,13 @@
     (letrec ([loop
                (lambda (bits borrow)
                  (cond
-                   [(is-Zero? bits) (list)]
-                   [(and (= (car bits) 1)) 
-                    (if (and borrow
-                             (= (length bits) 1))
+                   [(= (car bits) 1) 
+                    (if (and borrow (= (length bits) 1))
                       (cdr bits)
                       (cons 0 (cdr bits)))]
                    [else (cons 1 (loop (cdr bits) #t))]))])
       (cond
-        [(is-Zero? (reverse n)) (zero)]
+        [(is-Zero? n) (zero)]
         [else (reverse (loop (reverse n) #f))]))))
 
 (add-batch-tests! "EX1" '(
