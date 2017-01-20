@@ -19,15 +19,11 @@
     (letrec ([loop
                (lambda (bits carry)
                  (cond
-                   [(null? bits) 
-                    (if carry (list 1) (list))]
-                   [(= (car bits) 0) 
-                    (if carry
-                      (cons 1 (cdr bits))
-                      bits)]
-                   [else (if carry
-                           (cons 0 (loop (cdr bits) #t))
-                           bits)]))])
+                   [(null? bits) (if carry (list 1) (list))]
+                   [carry (if (= 1 (car bits))
+                            (cons 0 (loop (cdr bits) #t))
+                            (cons 1 (loop (cdr bits) #f)))]
+                   [else bits]))])
       (reverse (loop (reverse n) #t)))))
 
 (define predecessor
@@ -142,7 +138,7 @@
   (lambda (a b)
     (cond
       [(or (is-Zero? a)
-           (is-Zero? b) ) 
+           (is-Zero? b)) 
        (zero)]
       [else (sum a (prod a (predecessor b)))])))
 
@@ -159,10 +155,14 @@
                           (less-than? '(1) (zero)) => #f
                           (less-than? '(1) '(1)) => #f
                           (less-than? '(1 0) '(1 1 1)) => #t
+                          (less-than? '(1 1 1) '(1 0)) => #f
                           (less-than? '(1 0 0 0) '(1 1 1)) => #f
+                          (less-than? '(1 1 1) '(1 0 0 0)) => #t
                           (less-than? '(1 0 1 1 1) '(1 0 1 1 1)) => #f
                           (less-than? '(1 1 1 1) '(1 0 0 0 0)) => #t
+                          (less-than? '(1 0 0 0 0) '(1 1 1 1)) => #f
                           (less-than? '(1 0 1 1 1 1) '(1 0 0 1 1 1)) => #f
+                          (less-than? '(1 0 0 1 1 1) '(1 0 1 1 1 1)) => #t
                           (sum (zero) (zero)) => (zero)
                           (sum (zero) '(1)) => '(1)
                           (sum '(1) (zero)) => '(1)
@@ -187,7 +187,9 @@
 (define equals-binary?
   (lambda (a b)
     (cond
-      [(and (null? a) 
+      [(not (eqv? (null? a) 
+            (null? b))) #f]
+      [(and (null? a)
             (null? b)) #t]
       [(= (car a) (car b)) 
        (equals-binary? (cdr a) (cdr b))]
@@ -196,17 +198,82 @@
 (define less-than-binary?
   (lambda (a b)
     (cond
-      [(and (null? a)
-            (null? b) #f)]
+      [(< (length a) (length b)) #t]
+      [(> (length a) (length b)) #f]
+      [(or (null? a)
+           (null? b)) #f]
       [(= (car a) (car b)) 
        (less-than-binary? (cdr a) (cdr b))]
       [(and (= (car a) 0) 
-            (= car b) 1) #t]
+            (= (car b) 1)) #t]
       [else #f])))
 
-;; TODO DEFINE sum-binary
-;; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+(define sum-binary
+  (lambda (a b)
+   (reverse (sum-binary* (reverse a) (reverse b) #f ))))
+
+(define sum-binary*
+  (lambda (a b carry)
+    (cond
+      [(null? b) (if carry (reverse (successor a)) a)]
+      [(null? a) (if carry (reverse (successor b)) b)]
+      [else 
+        (let* ([a1 (= (car a) 1)]
+               [b1 (= (car b) 1)]
+               [bits (list a1 b1 carry)])
+          (cond
+            [(exactly-n-true? 1 bits) (cons 1 (sum-binary* (cdr a) (cdr b) #f))]
+            [(exactly-n-true? 2 bits) (cons 0 (sum-binary* (cdr a) (cdr b) #t))]
+            [(and a1 b1 carry) (cons 1 (sum-binary* (cdr a) (cdr b) #t))]
+            [else (cons 0 (sum-binary* (cdr a) (cdr b) #f))]))])))
+
+(define exactly-n-true?
+  (lambda (n ls)
+    (= (length (remove #f ls)) n)))
+
 
 
 ;; TODO DEFINE prod-binary
 ;; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+(add-batch-tests! "EX4" '(
+                          (equals-binary? (zero) (zero)) => #t
+                          (equals-binary? (zero) '(1)) => #f
+                          (equals-binary? '(1) (zero)) => #f
+                          (equals-binary? '(1 0) '(1)) => #f
+                          (equals-binary? '(1 0 1 0 1) '(1 0 1 1 1)) => #f
+                          (equals-binary? '(1 1 0 0 1) '(1 1 0 0 1)) => #t
+                          (equals-binary? '(1 1 1 0) '(1 0 0 1 0 0)) => #f
+                          (less-than-binary? (zero) (zero)) => #f
+                          (less-than-binary? (zero) '(1)) => #t
+                          (less-than-binary? '(1) (zero)) => #f
+                          (less-than-binary? '(1) '(1)) => #f
+                          (less-than-binary? '(1 0) '(1 1 1)) => #t
+                          (less-than-binary? '(1 1 1) '(1 0)) => #f
+                          (less-than-binary? '(1 0 0 0) '(1 1 1)) => #f
+                          (less-than-binary? '(1 1 1) '(1 0 0 0)) => #t
+                          (less-than-binary? '(1 0 1 1 1) '(1 0 1 1 1)) => #f
+                          (less-than-binary? '(1 1 1 1) '(1 0 0 0 0)) => #t
+                          (less-than-binary? '(1 0 0 0 0) '(1 1 1 1)) => #f
+                          (less-than-binary? '(1 0 1 1 1 1) '(1 0 0 1 1 1)) => #f
+                          (less-than-binary? '(1 0 0 1 1 1) '(1 0 1 1 1 1)) => #t                        
+                          (sum-binary (zero) (zero)) => (zero)
+                          (sum-binary (zero) '(1)) => '(1)
+                          (sum-binary '(1) (zero)) => '(1)
+                          (sum-binary '(1) '(1)) => '(1 0)
+                          (sum-binary '(1 1) '(1 1)) => '(1 1 0)
+                          (sum-binary '(1 0 0) '(1)) => '(1 0 1)
+                          (sum-binary '(1) '(1 0 0)) => '(1 0 1)
+                          (sum-binary '(1 0 1 0) '(1 1 1)) => '(1 0 0 0 1)
+                          (sum-binary '(1 1 1) '(1 0 1 0)) => '(1 0 0 0 1)
+                          (prod-binary (zero) (zero)) => (zero)
+                          (prod-binary (zero) '(1 0)) => (zero)
+                          (prod-binary '(1 0) (zero)) => (zero)
+                          (prod-binary '(1) '(1 0)) => '(1 0)
+                          (prod-binary '(1 0) '(1)) => '(1 0)
+                          (prod-binary '(1 1 0) '(1 0 0 0)) => '(1 1 0 0 0 0)
+                          (prod-binary '(1 0 0 0) '(1 1 0)) => '(1 1 0 0 0 0)
+                          (prod-binary '(1) '(1)) => '(1)
+                          (prod-binary '(1 0 0 0 0 0 0) '(1 0 0 0 0 0 0)) => '(1 0 0 0 0 0 0 0 0 0 0 0 0))
+                  
+                  ) 
+;
