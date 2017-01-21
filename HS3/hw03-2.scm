@@ -234,9 +234,31 @@
     (= (length (remove #f ls)) n)))
 
 
+(define prod-binary
+  (lambda (a b)
+      (cond
+       [(or (is-Zero? a)
+            (is-Zero? b)) (zero)]
+       [else (prod-binary* a (reverse b) 0)])))
 
-;; TODO DEFINE prod-binary
-;; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+(define prod-binary*
+  (lambda (a b n)
+    (cond
+      [(null? b) (zero)]
+      [else (sum-binary
+              (if (= (car b) 1)
+                (if (is-Zero? a)
+                  (zero)
+                  (append a (repeat 0 n)))
+                (zero))
+              (prod-binary* a (cdr b) (+ n 1)))])))
+
+(define repeat
+  (lambda (sym n)
+    (cond
+      [(zero? n) (list)]
+      [else (cons sym (repeat sym (- n 1)))])))
+
 (add-batch-tests! "EX4" '(
                           (equals-binary? (zero) (zero)) => #t
                           (equals-binary? (zero) '(1)) => #f
@@ -279,7 +301,5 @@
                           (prod-binary '(1 1 0) '(1 0 0 0)) => '(1 1 0 0 0 0)
                           (prod-binary '(1 0 0 0) '(1 1 0)) => '(1 1 0 0 0 0)
                           (prod-binary '(1) '(1)) => '(1)
-                          (prod-binary '(1 0 0 0 0 0 0) '(1 0 0 0 0 0 0)) => '(1 0 0 0 0 0 0 0 0 0 0 0 0))
-                  
-                  ) 
-;
+                          (prod-binary '(1 0 0 0 0 0 0) '(1 0 0 0 0 0 0)) => '(1 0 0 0 0 0 0 0 0 0 0 0 0)
+                          )) 
