@@ -145,9 +145,13 @@
                           (equals? (zero) '(1)) => #f
                           (equals? '(1) (zero)) => #f
                           (equals? '(1 0) '(1)) => #f
+                          (equals? '(1) '(1 0)) => #f
                           (equals? '(1 0 1 0 1) '(1 0 1 1 1)) => #f
+                          (equals? '(1 0 1 1 1) '(1 0 1 0 1)) => #f
                           (equals? '(1 1 0 0 1) '(1 1 0 0 1)) => #t
                           (equals? '(1 1 1 0) '(1 0 0 1 0 0)) => #f
+                          (equals? '(1 0 0 1 0 0) '(1 1 1 0)) => #f
+                          (equals? '(1 1 1 1 1) '(1 1 1 1 1)) => #t
                           (less-than? (zero) (zero)) => #f
                           (less-than? (zero) '(1)) => #t
                           (less-than? '(1) (zero)) => #f
@@ -185,8 +189,8 @@
 (define equals-binary?
   (lambda (a b)
     (cond
-      [(not (eqv? (null? a) 
-            (null? b))) #f]
+      [(not (= (length a)
+               (length b))) #f]
       [(and (null? a)
             (null? b)) #t]
       [(= (car a) (car b)) 
@@ -195,16 +199,16 @@
 
 (define less-than-binary?
   (lambda (a b)
-    (cond
-      [(< (length a) (length b)) #t]
-      [(> (length a) (length b)) #f]
-      [(or (null? a)
-           (null? b)) #f]
-      [(= (car a) (car b)) 
-       (less-than-binary? (cdr a) (cdr b))]
-      [(and (= (car a) 0) 
-            (= (car b) 1)) #t]
-      [else #f])))
+    (let ([alen (length a)]
+          [blen (length b)])
+      (cond
+        [(< alen blen) #t]
+        [(> alen blen) #f]
+        [(or (null? a)
+             (null? b)) #f]
+        [(= (car a) (car b)) 
+         (less-than-binary? (cdr a) (cdr b))]
+        [else (< (car a) (car b))]))))
 
 (define sum-binary
   (lambda (a b)
@@ -238,9 +242,13 @@
                           (equals-binary? (zero) '(1)) => #f
                           (equals-binary? '(1) (zero)) => #f
                           (equals-binary? '(1 0) '(1)) => #f
+                          (equals-binary? '(1) '(1 0)) => #f
                           (equals-binary? '(1 0 1 0 1) '(1 0 1 1 1)) => #f
+                          (equals-binary? '(1 0 1 1 1) '(1 0 1 0 1)) => #f
                           (equals-binary? '(1 1 0 0 1) '(1 1 0 0 1)) => #t
                           (equals-binary? '(1 1 1 0) '(1 0 0 1 0 0)) => #f
+                          (equals-binary? '(1 0 0 1 0 0) '(1 1 1 0)) => #f
+                          (equals-binary? '(1 1 1 1 1) '(1 1 1 1 1)) => #t
                           (less-than-binary? (zero) (zero)) => #f
                           (less-than-binary? (zero) '(1)) => #t
                           (less-than-binary? '(1) (zero)) => #f
