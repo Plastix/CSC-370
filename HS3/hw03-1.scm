@@ -3,7 +3,7 @@
 ;; 1/25/17
 
 ; Load the Unit Tester
-(load "../HS2/soln/1-soln.scm") 
+(load "unit_tester.scm") 
 (clear!)
 
 ;; Some Test Cases
@@ -19,7 +19,7 @@
 (define lc10 ' ((lambda (x) x) (lambda (y) y)))
 
 ; Load utility procedures
-(load "utils.scm")
+(load "1-utils.scm")
 
 (define get-lvars
   (lambda (exp)

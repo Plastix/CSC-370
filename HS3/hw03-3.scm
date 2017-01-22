@@ -3,7 +3,7 @@
 ;; 1/25/17
 
 ; Load the Unit Tester
-(load "../HS2/soln/1-soln.scm") 
+(load "unit_tester.scm") 
 (clear!)
 
 
