@@ -34,8 +34,7 @@
     (if-ba a
            (if-ba b
                   true
-                  false
-                  )
+                  false)
            false)))
 
 (define xor-ba
@@ -43,8 +42,7 @@
     (if-ba a
            (if-ba b
                   false
-                  true
-                  )
+                  true)
            (if-ba b
                   true
                   false))))
