@@ -53,7 +53,7 @@
   (lambda (exp)
     (cond
       [(var-exp? exp) (list)]
-      [(lambda-exp? exp) (append (lambda->param exp) 
+      [(lambda-exp? exp) (append (lambda->param exp) ; Note that lambda "param" is a list
                                  (get-lparams* (lambda->body exp)))]
       [(apply-exp? exp) (append (get-lparams* (car exp))
                                 (get-lparams* (cadr exp)))])))
@@ -87,7 +87,7 @@
                                         (cadr exp)
                                         (counter (+ 1 n) (lambda->body exp)))]
                    [(apply-exp? exp) (append (list (counter n (car exp))) 
-                                       (list (counter n (cadr exp))))])
+                                             (list (counter n (cadr exp))))])
                  )])
       (counter 0 exp)))) 
 
@@ -98,7 +98,7 @@
                           (replace-vars '(lambda (a) (lambda (b) c))) => '(lambda (a) (lambda (b) 2))
                           (replace-vars '(a ((lambda (a) b) c))) => '(0  ((lambda (a) 1) 0))
                           (replace-vars '((lambda (z) (lambda (y) ((lambda (x) (x y)) (x z)))) z))
-                                      => '((lambda (z) (lambda (y) ((lambda (x) (3 3)) (2 2)))) 0)
+                          => '((lambda (z) (lambda (y) ((lambda (x) (3 3)) (2 2)))) 0)
                           ))
 
 (define free-vars
@@ -109,11 +109,12 @@
   (lambda (exp formals-seen)
     (cond
       [(var-exp? exp) (cond
-                        [(member exp formals-seen) (list)]
+                        [(member exp formals-seen) (list)] ; Using member as a predicate
                         [else (list exp)])]
-      [(lambda-exp? exp) (free (lambda->body exp) (cons (car (lambda->param exp)) formals-seen))]
+      [(lambda-exp? exp) (free (lambda->body exp)
+                               (cons (car (lambda->param exp)) formals-seen))]
       [(apply-exp? exp) (append (free (car exp) formals-seen) 
-                              (free (cadr exp) formals-seen))])))
+                                (free (cadr exp) formals-seen))])))
 
 (add-batch-tests! "EX4" '(
                           (free-vars 'x) => '(x)
@@ -127,7 +128,7 @@
 
 (define bound-vars
   (lambda (exp)
-            (bound exp '())))
+    (bound exp '())))
 
 (define bound
   (lambda (exp formals-seen)
@@ -135,7 +136,8 @@
       [(var-exp? exp) (cond
                         [(member exp formals-seen) (list exp)]
                         [else (list)])]
-      [(lambda-exp? exp) (bound (lambda->body exp) (cons (car (lambda->param exp)) formals-seen))]
+      [(lambda-exp? exp) (bound (lambda->body exp) 
+                                (cons (car (lambda->param exp)) formals-seen))]
       [(apply-exp? exp) (append (bound (car exp) formals-seen)
                                 (bound (cadr exp) formals-seen))])))
 
