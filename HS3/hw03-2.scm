@@ -33,12 +33,10 @@
                  (cond
                    [(= (car bits) 1) 
                     (if (and borrow (= (length bits) 1))
-                      (cdr bits)
+                      (list)
                       (cons 0 (cdr bits)))]
                    [else (cons 1 (loop (cdr bits) #t))]))])
-      (cond
-        [(is-Zero? n) (zero)]
-        [else (reverse (loop (reverse n) #f))]))))
+      (reverse (loop (reverse n) #f)))))
 
 (add-batch-tests! "EX1" '(
                           (zero) => '(0)
@@ -54,12 +52,16 @@
                           (successor '(1 0 1)) => '(1 1 0) 
                           (successor '(1 1 0)) => '(1 1 1)
                           (successor '(1 1 1)) => '(1 0 0 0)
-                          (predecessor '(0)) => '(0)
+                          (successor '(1 0 1 1 1)) => '(1 1 0 0 0)
                           (predecessor '(1)) => '(0)
                           (predecessor '(1 0)) => '(1)
                           (predecessor '(1 1)) => '(1 0)
                           (predecessor '(1 0 0)) => '(1 1)
                           (predecessor '(1 0 1 1 0 0 0)) => '(1 0 1 0 1 1 1)
+                          (predecessor '(1 0 1)) => '(1 0 0)
+                          (predecessor '(1 1 1)) => '(1 1 0)
+                          (predecessor '(1 1 0 0)) => '(1 0 1 1)
+                          (predecessor '(1 0 1 0)) => '(1 0 0 1) 
                           ))
 ;; Exercise 2
 (define binary->number
@@ -183,7 +185,7 @@
                           (prod '(1 0 0 0) '(1 1 0)) => '(1 1 0 0 0 0)
                           (prod '(1) '(1)) => '(1)
                           (prod '(1 0 0 0 0 0 0) '(1 0 0 0 0 0 0)) => '(1 0 0 0 0 0 0 0 0 0 0 0 0))
-                  
+
                   ) 
 ;; Exercise 4
 (define equals-binary?
@@ -212,7 +214,7 @@
 
 (define sum-binary
   (lambda (a b)
-   (reverse (sum-binary* (reverse a) (reverse b) #f ))))
+    (reverse (sum-binary* (reverse a) (reverse b) #f ))))
 
 (define sum-binary*
   (lambda (a b carry)
@@ -236,10 +238,10 @@
 
 (define prod-binary
   (lambda (a b)
-      (cond
-       [(or (is-Zero? a)
-            (is-Zero? b)) (zero)]
-       [else (prod-binary* a (reverse b) 0)])))
+    (cond
+      [(or (is-Zero? a)
+           (is-Zero? b)) (zero)]
+      [else (prod-binary* a (reverse b) 0)])))
 
 (define prod-binary*
   (lambda (a b n)
