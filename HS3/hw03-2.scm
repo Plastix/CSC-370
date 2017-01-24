@@ -97,12 +97,14 @@
                           (binary->number '(1 0)) => 2
                           (binary->number '(1 1)) => 3
                           (binary->number '(1 0 0)) => 4
+                          (binary->number '(1 0 1)) => 5
                           (binary->number '(1 0 1 0 1)) => 21
                           (number->binary 0) => '(0)
                           (number->binary 1) => '(1)
                           (number->binary 2) => '(1 0)
                           (number->binary 3) => '(1 1)
                           (number->binary 4) => '(1 0 0)
+                          (number->binary 5) => '(1 0 1)
                           (number->binary 21) => '(1 0 1 0 1)
                           (number->binary 64) => '(1 0 0 0 0 0 0)
                           ))
