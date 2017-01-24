@@ -24,10 +24,7 @@
 ;; Exercise 1
 (define not-ba
   (lambda (a)
-    (if-ba a
-           false
-           true)))
-
+    ((a false) true)))
 
 (define and-ba
   (lambda (a b)
