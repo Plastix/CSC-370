@@ -31,6 +31,12 @@
     (letrec ([loop
                (lambda (bits borrow)
                  (cond
+                   ;; Note: We can get away without checking for a null list here
+                   ;; This is because our inputs are only defined for /n/ >= 1
+                   ;; Thus, there always is a '1' MSB and we never recurse after it
+                   ;; This means the loop function is never called with a null list
+                   ;; However, this means this function errors on (zero) input
+                   ;; (which is outside of its preconditions) 
                    [(= (car bits) 1) 
                     (if (and borrow (= (length bits) 1))
                       (list)
