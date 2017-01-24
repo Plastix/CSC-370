@@ -91,7 +91,6 @@
                  )])
       (counter 0 exp)))) 
 
-;; TODO MORE TESTS!!
 (add-batch-tests! "EX3" '(
                           (replace-vars '(f x)) > '(0 0)
                           (replace-vars '(lambda (x) y)) => '(lambda (x) 1)
