@@ -64,7 +64,6 @@
   (lambda ()
     (eopl:error parse-prefix "Invalid prefix exp!")))
 
-
 (add-batch-tests! "EX1" '(
                           (parse-prefix '(1)) => (const-exp 1)
                           (parse-prefix '(- 1 2)) 
@@ -95,7 +94,93 @@
                                (diff-exp (const-exp 8) (const-exp 9))
                                (diff-exp (const-exp 1)
                                          (diff-exp (const-exp 7)
-                                                   (const-exp 2))))))
+                                                   (const-exp 2))))
+                          ))
 
+;; Exercise 2
+;; Abstract-Exp -> Concrete-Exp
+(define unparse-prefix
+  (lambda (exp)
+    (cases prefix-exp exp
+           (const-exp (num) (list num))
+           (diff-exp (rand1 rand2) 
+                     (append (list '-) (unparse-prefix rand1)
+                           (unparse-prefix rand2))))))
 
+(add-batch-tests! "EX2" '(
+                          (unparse-prefix (const-exp 1)) => '(1) 
+                          (unparse-prefix (diff-exp (const-exp 1) (const-exp 2))) 
+                          => '(- 1 2) 
+                          (unparse-prefix (diff-exp 
+                                            (diff-exp (const-exp 1)
+                                                      (const-exp 2))
+                                            (const-exp 3))) 
+                          => '(- - 1 2 3) 
+                          (unparse-prefix (diff-exp (const-exp 3)
+                                                    (diff-exp 
+                                                      (const-exp 0)
+                                                      (const-exp 1)))) 
+                          => '(- 3 - 0 1) 
+                          (unparse-prefix (diff-exp (const-exp 1)
+                                                    (diff-exp (const-exp 2)
+                                                              (diff-exp
+                                                                (const-exp 3)
+                                                                (const-exp 0)))) ) 
+                          => '(- 1 - 2 - 3 0) 
+                          (unparse-prefix (diff-exp
+                                            (diff-exp
+                                              (diff-exp (const-exp 2) (const-exp 4))
+                                              (diff-exp (const-exp 1) (const-exp 0)))
+                                            (const-exp 0)))
+                          => '(- - - 2 4 - 1 0 0)   
+                          (unparse-prefix (diff-exp
+                                            (diff-exp (const-exp 8) (const-exp 9))
+                                            (diff-exp (const-exp 1)
+                                                      (diff-exp (const-exp 7)
+                                                                (const-exp 2)))))
+                          => '(- - 8 9 - 1 - 7 2) 
+                          ))
 
+;; Exercise 3
+;; Abstract-Exp -> SchemeNum
+(define eval-prefix
+  (lambda (exp)
+    (eval (cases prefix-exp exp
+           (const-exp (num) num)
+           (diff-exp (rand1 rand2) 
+                     (list '- (eval-prefix rand1)
+                           (eval-prefix rand2)))))))
+
+(add-batch-tests! "EX3" '(
+                          (eval-prefix (const-exp 1)) => 1
+                          (eval-prefix (diff-exp (const-exp 1) (const-exp 2))) 
+                          => -1 
+                          (eval-prefix (diff-exp 
+                                            (diff-exp (const-exp 1)
+                                                      (const-exp 2))
+                                            (const-exp 3))) 
+                          => -4 
+                          (eval-prefix (diff-exp (const-exp 3)
+                                                    (diff-exp 
+                                                      (const-exp 0)
+                                                      (const-exp 1)))) 
+                          => 4 
+                          (eval-prefix (diff-exp (const-exp 1)
+                                                    (diff-exp (const-exp 2)
+                                                              (diff-exp
+                                                                (const-exp 3)
+                                                                (const-exp 0)))) ) 
+                          => 2 
+                          (eval-prefix (diff-exp
+                                            (diff-exp
+                                              (diff-exp (const-exp 2) (const-exp 4))
+                                              (diff-exp (const-exp 1) (const-exp 0)))
+                                            (const-exp 0)))
+                          => -3
+                          (eval-prefix (diff-exp
+                                            (diff-exp (const-exp 8) (const-exp 9))
+                                            (diff-exp (const-exp 1)
+                                                      (diff-exp (const-exp 7)
+                                                                (const-exp 2)))))
+                          => 3
+                          ))
