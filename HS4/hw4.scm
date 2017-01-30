@@ -36,7 +36,7 @@
               [rand2 (parse-prefix* (cdr rand1))])
          (cons (diff-exp (car rand1) (car rand2)) 
                (cdr rand2)))]
-      [else (report-invalid-concrete-syntax)])))
+      [else (eopl:error 'parse-prefix "Invalid prefix exp: ~s" exp)])))
 
 ;; Exp -> Boolean
 (define non-null-ls?
@@ -58,11 +58,6 @@
     (and
       (non-null-ls? exp)
       (equal? (car exp) '-))))
-
-;; () -> Error
-(define report-invalid-concrete-syntax
-  (lambda ()
-    (eopl:error parse-prefix "Invalid prefix exp!")))
 
 (add-batch-tests! "EX1" '(
                           (parse-prefix '(1)) => (const-exp 1)
@@ -105,7 +100,11 @@
            (const-exp (num) (list num))
            (diff-exp (rand1 rand2) 
                      (append (list '-) (unparse-prefix rand1)
-                           (unparse-prefix rand2))))))
+                           (unparse-prefix rand2)))
+           (else (eopl:error 
+                   'unparse-prefix
+                   "Invalid abstract expression: ~s"
+                   exp)))))
 
 (add-batch-tests! "EX2" '(
                           (unparse-prefix (const-exp 1)) => '(1) 
@@ -149,7 +148,10 @@
            (const-exp (num) num)
            (diff-exp (rand1 rand2) 
                      (list '- (eval-prefix rand1)
-                           (eval-prefix rand2)))))))
+                           (eval-prefix rand2)))
+           (else (eopl:error 'eval-prefix 
+                             "Invalid abstract expression ~s"
+                             exp))))))
 
 (add-batch-tests! "EX3" '(
                           (eval-prefix (const-exp 1)) => 1
