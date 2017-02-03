@@ -174,6 +174,27 @@
         (get-input-string)
         str))))
 
+(define debug0
+  (lambda ()
+    (trace value-of-prog)
+    (trace value-of-exp)
+    ))
+
+(define debug1
+  (lambda ()
+    (debug0)
+    (trace expval->num)
+    (trace expval->bool)
+    (trace expval->string)))
+
+(define debug2
+  (lambda ()
+    (untrace value-of-prog)
+    (untrace value-of-exp)
+    (untrace expval->num)
+    (untrace expval->bool)
+    (untrace expval->string)))
+
 ;; (read-eval-print) -- Main read, eval, and print loop.
 (define read-eval-print
   (lambda (env)
@@ -185,6 +206,15 @@
         [(equal? concrete-code "!quit")  
          (display "Goodbye!")  ;; Quit if 'quit entered.
          (newline)]
+        [(equal? concrete-code "!debug0") 
+         (debug0) 
+         (read-eval-print env)]
+        [(equal? concrete-code "!debug1") 
+         (debug1)
+         (read-eval-print env)]
+        [(equal? concrete-code "!debug2") 
+         (debug2)
+         (read-eval-print env)]
         [(equal? concrete-code "!env")
          (print-env! env)
          (read-eval-print env)]
@@ -206,6 +236,5 @@
                 (display (expval->string (value-of-prog abstract-code env)))
                 (newline))))
           ;; "Loop".  Notice it is tail recursive.
-          (read-eval-print env)]
-        ))))
+          (read-eval-print env)]))))
 
