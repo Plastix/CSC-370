@@ -1,3 +1,6 @@
+;; CSC 370 HS 5
+;; Aidan Pieper
+;; 2/15/17
 ;; LET-interp.scm
 
 (load "helpers.scm")
@@ -72,6 +75,16 @@
 			[(equal? var target-var) val]
 			[else (apply-env env* target-var)])])))
 
+(define make-init-env
+  (lambda ()
+    (extend-env
+      e
+      (num-val 2.71828)
+      (extend-env
+        pi
+        (num-val 3.14159)
+        (empty-env)))))
+
 ;; ==================== Expressed Values ==================================
 
 (define-datatype expval expval?
@@ -131,7 +144,7 @@
 (define start
   (lambda ()
     (begin
-      (display "\n=== Welcome to the CSC-370 Almost-LET Interpreter === \n\n")
+      (display "\n=== A Simple Interpreter === \n\n")
       (read-eval-print))))
 
 ;; (get-input-string) -- Reads a line from the interactive input
@@ -168,7 +181,7 @@
 	     [else
 	      (display "RUNTIME ERROR: \n")
 	      (display-exception ex)])
-	    (display (expval->string (value-of-prog abstract-code (empty-env))))
+	    (display (expval->string (value-of-prog abstract-code (make-init-env))))
 	    (newline))))
 	;; "Loop".  Notice it is tail recursive.
 	(read-eval-print)]
