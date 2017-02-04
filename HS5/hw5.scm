@@ -40,6 +40,15 @@
       ("let" identifier "=" expression "in" expression)
       let-exp)
 
+
+    (expression
+      ("#true")
+      const-true-exp)
+
+    (expression
+      ("#false")
+      const-false-exp)
+    
     ))
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
@@ -109,8 +118,7 @@
                  (num-val
                    (num number?))
                  (bool-val
-                   (b boolean?))
-                 )
+                   (b boolean?)))
 
 (define expval->num
   (lambda (ev)
@@ -154,6 +162,8 @@
                     (let 
                       ([val1 (value-of-exp exp1 env)])
                       (value-of-exp exp2 (extend-env var val1 env)))]
+           [const-true-exp () (bool-val #t)]
+           [const-false-exp () (bool-val #f)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
