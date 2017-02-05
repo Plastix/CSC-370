@@ -147,12 +147,14 @@
   (lambda (ev)
     (cases expval ev
            [num-val (num) num]
+           [bool-val (b) (if b 1 0)]
            [else (raise-exception 'expval->num "Expressed value is not a number: ~s" ev)])))
 
 (define expval->bool
   (lambda (ev)
     (cases expval ev
            [bool-val (b) b]
+           [num-val (num) (if (= num 0) #f #t)]
            [else (raise-exception 'expval->bool "Expressed value is not a Boolean: ~s" ev)])))
 
 (define expval->string
