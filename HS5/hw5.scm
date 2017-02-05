@@ -72,6 +72,18 @@
       ("#false")
       const-false-exp)
 
+    (expression
+      ("&(" expression "," expression ")")
+      and-exp)
+
+    (expression
+      ("|(" expression "," expression ")")
+      or-exp)
+
+    (expression
+      ("!(" expression ")")
+      not-exp)
+
     ))
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
@@ -210,6 +222,19 @@
                       (value-of-exp exp2 (extend-env var val1 env)))]
            [const-true-exp () (bool-val #t)]
            [const-false-exp () (bool-val #f)]
+           [and-exp (exp1 exp2)
+                    (let ([ev1 (value-of-exp exp1 env)]
+                          [ev2 (value-of-exp exp2 env)])
+                      (bool-val (and (expval->bool ev1)
+                                     (expval->bool ev2))))]
+           [or-exp (exp1 exp2)
+                   (let ([ev1 (value-of-exp exp1 env)]
+                         [ev2 (value-of-exp exp2 env)])
+                     (bool-val (or (expval->bool ev1)
+                                   (expval->bool ev2))))]
+           [not-exp (exp1) 
+                    (let ([ev1 (value-of-exp exp1 env)])
+                      (bool-val (not (expval->bool ev1))))]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
