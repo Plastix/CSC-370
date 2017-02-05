@@ -24,6 +24,30 @@
       ("-(" expression "," expression ")")  ;;   Concrete       -(<Expression>,<Expression>)
       diff-exp)                             ;;   Abstract       (diff-exp exp1 exp2)
 
+    (expression
+      ("+(" expression "," expression ")")
+      sum-exp)
+
+    (expression
+      ("*(" expression "," expression ")")
+      mult-exp)
+
+    (expression
+      ("/(" expression "," expression ")")
+      div-exp)
+
+    (expression
+      ("<(" expression "," expression ")")
+      less-exp)
+
+    (expression
+      ("<=(" expression "," expression ")")
+      leq-exp)
+
+    (expression
+      ("=(" expression "," expression ")")
+      eq-exp)
+
     (expression                     ;; <Expression> ::= 
       ("zero?(" expression ")")      ;;   Concrete       zero?(<Expression>)
       zero?-exp)                     ;;   Abstract       (zero?-exp exp)
@@ -40,7 +64,6 @@
       ("let" identifier "=" expression "in" expression)
       let-exp)
 
-
     (expression
       ("#true")
       const-true-exp)
@@ -48,7 +71,7 @@
     (expression
       ("#false")
       const-false-exp)
-    
+
     ))
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
@@ -147,11 +170,32 @@
            [a-prog (exp)  (value-of-exp exp env)]
            [else (raise-exception 'value-of-prog "Abstract syntax case not implemented: ~s" (car prog))])))
 
+(define binary-op-num
+  (lambda (op env exp1 exp2)
+    (let
+      ([ev1 (value-of-exp exp1 env)]
+       [ev2 (value-of-exp exp2 env)])
+      (num-val (op (expval->num ev1)
+                   (expval->num ev2))))))   
+
 (define value-of-exp
   (lambda (exp env)
     (cases expression exp
            [const-exp (num) (num-val num)]
-           [diff-exp (rand1 rand2) (num-val (- (expval->num (value-of-exp rand1 env)) (expval->num (value-of-exp rand2 env))))]
+           [diff-exp (rand1 rand2) (binary-op-num - env rand1 rand2)]
+           [sum-exp (rand1 rand2) (binary-op-num + env rand1 rand2)]
+           [mult-exp (rand1 rand2) (binary-op-num * env rand1 rand2)]
+           [div-exp (rand1 rand2)
+                    (let ([val2 (expval->num (value-of-exp rand2 env))])
+                      (if (zero? val2)
+                        (raise-exception 'value-of-exp "Cannot divide by 0!")
+                        (binary-op-num / env rand1 rand2)))]
+           [less-exp (rand1 rand2) (bool-val (< (expval->num (value-of-exp rand1 env))
+                                                (expval->num (value-of-exp rand2 env))))]
+           [leq-exp (rand1 rand2) (bool-val (<= (expval->num (value-of-exp rand1 env))
+                                                (expval->num (value-of-exp rand2 env))))]
+           [eq-exp (rand1 rand2) (bool-val (= (expval->num (value-of-exp rand1 env))
+                                              (expval->num (value-of-exp rand2 env))))]
            [zero?-exp (exp1) (bool-val (= (expval->num (value-of-exp exp1 env)) 0))]
            [if-exp (exp1 exp2 exp3) 
                    (let
