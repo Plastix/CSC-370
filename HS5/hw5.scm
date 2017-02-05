@@ -83,6 +83,10 @@
     (expression
       ("!(" expression ")")
       not-exp)
+    
+    (expression
+      ("!def" identifier "=" expression)
+      def-prog)
 
     ))
 
@@ -153,7 +157,8 @@
                  (num-val
                    (num number?))
                  (bool-val
-                   (b boolean?)))
+                   (b boolean?))
+                 (unit-val))
 
 (define expval->num
   (lambda (ev)
@@ -174,16 +179,11 @@
     (cases expval ev
            [bool-val (b) (if b "#true" "#false")]
            [num-val (num) (number->string num)]
+           [unit-val () ""]
            )))
 
 
 ;; ==================== Evaluater =========================================
-(define value-of-prog
-  (lambda (prog env)
-    (cases program prog
-           [a-prog (exp)  (value-of-exp exp env)]
-           [else (raise-exception 'value-of-prog "Abstract syntax case not implemented: ~s" (car prog))])))
-
 (define binary-op-num
   (lambda (op env exp1 exp2)
     (let
@@ -235,6 +235,7 @@
            [not-exp (exp1) 
                     (let ([ev1 (value-of-exp exp1 env)])
                       (bool-val (not (expval->bool ev1))))]
+           [def-prog (var exp1) (unit-val)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
@@ -314,8 +315,18 @@
                   [else
                     (display "RUNTIME ERROR: \n")
                     (display-exception ex)])
-                (display (expval->string (value-of-prog abstract-code env)))
-                (newline))))
+                (cases program abstract-code
+                       (a-prog (prog) 
+                              (cases expression prog
+                                     (def-prog (var exp1)
+                                               (let ([ev1 (value-of-exp exp1 env)])
+                                                 (set! env (extend-env var ev1 env))
+                                                 (newline)))
+                                     (else 
+                                       (display (expval->string (value-of-exp prog env)))
+                                       (newline))))
+                       [else (raise-exception 'value-of-prog "Abstract syntax case not implemented: ~s" (car prog))])
+                )))
           ;; "Loop".  Notice it is tail recursive.
           (read-eval-print env)]))))
 
