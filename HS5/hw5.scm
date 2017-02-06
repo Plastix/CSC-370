@@ -16,6 +16,10 @@
       (expression)                   ;;   Concrete    <Expression>
       a-prog)                        ;;   Abstract    (a-prog exp)
 
+    (program
+      ("!def" identifier "=" expression)
+      def-prog)
+
     (expression                     ;; <Expression> ::= 
       (number)                       ;;   Concrete       <Number> 
       const-exp)                     ;;   Abstract       (const-exp num)
@@ -83,11 +87,6 @@
     (expression
       ("!(" expression ")")
       not-exp)
-    
-    (expression
-      ("!def" identifier "=" expression)
-      def-prog)
-
     ))
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
@@ -184,6 +183,15 @@
 
 
 ;; ==================== Evaluater =========================================
+(define value-of-prog
+  (lambda (prog env)
+    (cases program prog
+           [a-prog (exp) (list (value-of-exp exp env) env)]
+           [def-prog (var exp) (let ([ev (value-of-exp exp env)])
+                                 (list (unit-val) 
+                                       (extend-env var ev env)))]
+           [else (raise-exception 'value-of-prog "Abstract syntax case not implemented: ~s"  (car prog))])))
+
 (define binary-op-num
   (lambda (op env exp1 exp2)
     (let
@@ -235,7 +243,6 @@
            [not-exp (exp1) 
                     (let ([ev1 (value-of-exp exp1 env)])
                       (bool-val (not (expval->bool ev1))))]
-           [def-prog (var exp1) (unit-val)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
@@ -315,17 +322,12 @@
                   [else
                     (display "RUNTIME ERROR: \n")
                     (display-exception ex)])
-                (cases program abstract-code
-                       (a-prog (prog) 
-                              (cases expression prog
-                                     (def-prog (var exp1)
-                                               (let ([ev1 (value-of-exp exp1 env)])
-                                                 (set! env (extend-env var ev1 env))
-                                                 (newline)))
-                                     (else 
-                                       (display (expval->string (value-of-exp prog env)))
-                                       (newline))))
-                       [else (raise-exception 'value-of-prog "Abstract syntax case not implemented: ~s" (car prog))])
+                (let* ([val (value-of-prog abstract-code env)]
+                       [newenv (cadr val)]
+                       [return (car val)]) 
+                  (set! env newenv)
+                  (display (expval->string return))
+                  (newline))
                 )))
           ;; "Loop".  Notice it is tail recursive.
           (read-eval-print env)]))))
