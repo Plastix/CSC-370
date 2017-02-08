@@ -87,6 +87,28 @@
     (expression
       ("!(" expression ")")
       not-exp)
+
+    ;; Extra Credit - Lists
+    (expression
+      ("cons(" expression "," expression ")")
+      cons-exp)
+
+    (expression
+      ("car(" expression ")")
+      car-exp)
+
+    (expression
+      ("cdr(" expression ")")
+      cdr-exp)
+
+    (expression
+      ("null?(" expression ")")
+      null?-exp)
+
+    (expression
+      ("(emptylist)")
+      emptylist-exp)
+
     ))
 
 ;; Sets up the parser using the above concrete <-> abstract grammars.
@@ -157,7 +179,29 @@
                    (num number?))
                  (bool-val
                    (b boolean?))
-                 (unit-val))
+                 (unit-val)
+                 (empty-list-val)
+                 (pair-val
+                   (val1 expval?)
+                   (val2 expval?)
+                   ))
+
+;; Predicates for the two "list-variants" above
+(define pair-val?
+  (lambda (val)
+    (and
+      (list? val)
+      (= 3 (length val))
+      (equal? 'pair-val (car val))
+      (expval? (cadr val))
+      (expval? (caddr val)))))
+
+(define empty-list-val?
+  (lambda (val)
+    (and
+      (list? val)
+      (= 1 (length val))
+      (equal? 'empty-list-val (car val)))))
 
 (define expval->num
   (lambda (ev)
@@ -179,7 +223,35 @@
            [bool-val (b) (if b "#true" "#false")]
            [num-val (num) (number->string num)]
            [unit-val () ""]
+           [empty-list-val () "()"]
+           [pair-val (val1 val2) 
+                     (string-append "(" (expval->string val1)
+                                    (cond
+                                      [(empty-list-val? val2) ""]
+                                      [(pair-val? val2) " "]
+                                      [else " . "]
+                                      )
+                                    (pair-val->string val2)
+                                    ")")]
+
+
            )))
+
+
+(define pair-val->string
+  (lambda (ev)
+    (cases expval ev
+           (empty-list-val () "")
+           (pair-val (val1 val2) 
+                     (string-append (expval->string val1)
+                                    (cond
+                                      [(empty-list-val? val2) ""]
+                                      [(pair-val? val2) " "]
+                                      [else " . "]
+                                      )
+                                    (pair-val->string val2)
+                                    ))
+           (else (expval->string ev)))))
 
 
 ;; ==================== Evaluater =========================================
@@ -243,6 +315,25 @@
            [not-exp (exp1) 
                     (let ([ev1 (value-of-exp exp1 env)])
                       (bool-val (not (expval->bool ev1))))]
+           [cons-exp (exp1 exp2) (pair-val (value-of-exp exp1 env)
+                                           (value-of-exp exp2 env))]
+           [car-exp (exp)
+                    (let ([val (value-of-exp exp env)])
+                     (if (pair-val? val)
+                       (cadr val)
+                       (raise-exception 'value-of-exp "Exception in car: not a pair!")))]
+           [cdr-exp (exp)
+                    (let ([val (value-of-exp exp env)])
+                      (if (pair-val? val)
+                        (caddr val)
+                        (raise-exception 'value-of-exp "Exception in cdr: not a pair!")))]
+           [null?-exp (exp)
+                      (let ([val (value-of-exp exp env)])
+                        (if (equal? val (empty-list-val))
+                          (bool-val #t)
+                          (bool-val #f)
+                          ))]
+           [emptylist-exp () (empty-list-val)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
