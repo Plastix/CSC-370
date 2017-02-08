@@ -17,7 +17,7 @@
       a-prog)                        ;;   Abstract    (a-prog exp)
 
     (program
-      ("!def" identifier "=" expression)
+      ("def!" identifier "=" expression)
       def-prog)
 
     (expression                     ;; <Expression> ::= 
@@ -313,7 +313,9 @@
             (ex
               [else
                 (display "PARSE ERROR: \n")
-                (display-exception ex)])
+                (display-exception ex)
+                (read-eval-print env)
+                ])
             ;; Parse code, eval expression, and print result.
             (let
               ([abstract-code (parse concrete-code)])
@@ -321,14 +323,12 @@
                 (ex
                   [else
                     (display "RUNTIME ERROR: \n")
-                    (display-exception ex)])
+                    (display-exception ex)
+                    (read-eval-print env)
+                    ])
                 (let* ([val (value-of-prog abstract-code env)]
                        [newenv (cadr val)]
                        [return (car val)]) 
-                  (set! env newenv)
                   (display (expval->string return))
-                  (newline))
-                )))
-          ;; "Loop".  Notice it is tail recursive.
-          (read-eval-print env)]))))
-
+                  (newline)
+                  (read-eval-print newenv)))))]))))
