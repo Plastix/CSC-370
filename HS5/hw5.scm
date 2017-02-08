@@ -225,34 +225,20 @@
            [unit-val () ""]
            [empty-list-val () "()"]
            [pair-val (val1 val2) 
-                     (string-append "(" (expval->string val1)
-                                    (cond
-                                      [(empty-list-val? val2) ""]
-                                      [(pair-val? val2) " "]
-                                      [else " . "]
-                                      )
-                                    (pair-val->string val2)
-                                    ")")]
-
-
-           )))
-
+                     (string-append "(" 
+                                    (pair-val->string val1 val2)
+                                    ")")])))
 
 (define pair-val->string
-  (lambda (ev)
-    (cases expval ev
-           (empty-list-val () "")
-           (pair-val (val1 val2) 
-                     (string-append (expval->string val1)
-                                    (cond
-                                      [(empty-list-val? val2) ""]
-                                      [(pair-val? val2) " "]
-                                      [else " . "]
-                                      )
-                                    (pair-val->string val2)
-                                    ))
-           (else (expval->string ev)))))
-
+  (lambda (val1 val2)
+    (string-append
+      (expval->string val1)
+      (cond
+        [(empty-list-val? val2) ""]
+        [(pair-val? val2) (string-append " "
+                                         (pair-val->string (cadr val2) (caddr val2)))]
+        [else (string-append " . " 
+                             (expval->string val2))])))) 
 
 ;; ==================== Evaluater =========================================
 (define value-of-prog
@@ -405,7 +391,6 @@
               [else
                 (display "PARSE ERROR: \n")
                 (display-exception ex)
-                (read-eval-print env)
                 ])
             ;; Parse code, eval expression, and print result.
             (let
@@ -415,11 +400,13 @@
                   [else
                     (display "RUNTIME ERROR: \n")
                     (display-exception ex)
-                    (read-eval-print env)
                     ])
                 (let* ([val (value-of-prog abstract-code env)]
                        [newenv (cadr val)]
                        [return (car val)]) 
+                  (set! env newenv)
                   (display (expval->string return))
                   (newline)
-                  (read-eval-print newenv)))))]))))
+                  ))))
+          (read-eval-print env)
+          ]))))
