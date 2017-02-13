@@ -340,20 +340,20 @@
         (get-input-string)
         str))))
 
-(define debug0
+(define debug1
   (lambda ()
     (trace value-of-prog)
     (trace value-of-exp)
     ))
 
-(define debug1
+(define debug2
   (lambda ()
-    (debug0)
+    (debug1)
     (trace expval->num)
     (trace expval->bool)
     (trace expval->string)))
 
-(define debug2
+(define debug0
   (lambda ()
     (untrace value-of-prog)
     (untrace value-of-exp)
