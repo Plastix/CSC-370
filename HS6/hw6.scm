@@ -117,8 +117,16 @@
     (expression                            ;; <Expression> ::=
       ("emptylist")                         ;;   Concrete       emptylist
       emptylist-exp)                       ;;   Abstract       (emptylist-exp)
-    )
-  )
+
+    (expression
+      ("print!(" expression ")")
+      print-exp)
+
+    (expression
+      ("newline!")
+      newline-exp)
+
+    ))
 
 (load "lex-scan-parse.scm")
 
@@ -323,7 +331,12 @@
            [cdr-exp (exp1) (list-val (cdr (expval->list (value-of-exp exp1 env))))]
            [null?-exp (exp1) (bool-val (null? (expval->list (value-of-exp exp1 env))))]
            [emptylist-exp () (list-val '())]
-
+           [print-exp (exp)
+                      (let ([val (value-of-exp exp env)])
+                        (display (expval->string val))
+                        (unit-val)
+                        )]
+           [newline-exp () (display "\n") (unit-val)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
