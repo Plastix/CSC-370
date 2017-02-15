@@ -35,17 +35,17 @@
     ;; ============== PROC Definitions below ========================
 
     (expression                                        ;; <expression> ::=
-      ("proc (" identifier ")" expression)              ;;   Concrete  proc (<identifier>) <expression>
+      ("proc (" (arbno identifier) ")" expression)              ;;   Concrete  proc (<identifier>) <expression>
       proc-exp)                                         ;;   Abstract  (proc-exp param body)
 
     (expression                                        ;; <expression> ::=
-      ("(" expression expression ")")                   ;;   Concrete  (<expression> <expression>)
+      ("(" expression (arbno expression) ")")                   ;;   Concrete  (<expression> <expression>)
       call-exp)                                         ;;   Abstract  (call-exp rator rand)
 
     ;; ============== LETREC Definitions below ========================
 
     (expression                                                            ;; <expression> ::=
-      ("letrec" identifier "(" identifier ") =" expression "in" expression) ;;   letrec <id> (<id>) = <exp> in <exp>
+      ("letrec" identifier "(" (arbno identifier) ") =" expression "in" expression) ;;   letrec <id> (<id>) = <exp> in <exp>
       letrec-exp)                                                           ;;   (letrec-exp f-name f-param f-body body)
 
     ;; ============== HW 5 Definitions below ========================
@@ -98,7 +98,7 @@
       ("!(" expression ")")                 ;;   Concrete       !(<Expression>)
       not-exp)                              ;;   Abstract       (not-exp exp)
 
-    (expression                               ;; <Expression> ::=
+    (expression                              ;; <Expression> ::=
       ("cons(" expression "," expression ")")  ;;   Concrete       cons(<Expression>,<Expression>)
       cons-exp)                                ;;   Abstract       (cons-exp exp1 exp2)
 
@@ -118,6 +118,7 @@
       ("emptylist")                         ;;   Concrete       emptylist
       emptylist-exp)                       ;;   Abstract       (emptylist-exp)
 
+    ;; HW 6
     (expression
       ("print!(" expression ")")
       print-exp)
@@ -199,12 +200,22 @@
                    (bool boolean?))
                  (unit-val)
                  (proc-val
-                   (param symbol?)
+                   (params list-of-symbols?)
                    (body expression?)
                    (saved-env environment?))
                  (list-val
                    (ls list?))
                  )
+
+(define list-of-symbols?
+  (lambda (ls)
+    (and
+      list?
+      (fold-left (lambda (acc head) 
+                   (and (symbol? head)
+                        acc)) 
+                 #t 
+                 ls))))
 
 (define expval->num 
   (lambda (ev)
@@ -223,19 +234,19 @@
 (define expval->proc-body
   (lambda (ev)
     (cases expval ev
-           [proc-val (param body env) body]
+           [proc-val (params body env) body]
            [else (raise-exception 'expval->num "Expressed value is not a procedure: ~s" ev)])))
 
-(define expval->proc-param
+(define expval->proc-params
   (lambda (ev)
     (cases expval ev
-           [proc-val (param body env) param]
+           [proc-val (params body env) params]
            [else (raise-exception 'expval->num "Expressed value is not a procedure: ~s" ev)])))
 
 (define expval->proc-saved-env
   (lambda (ev)
     (cases expval ev
-           [proc-val (param body env) env]
+           [proc-val (params body env) env]
            [else (raise-exception 'expval->num "Expressed value is not a procedure: ~s" ev)])))
 
 (define expval->list
@@ -259,7 +270,9 @@
                            (lambda (ev) (string-append (expval->string ev) " "))
                            ls))
                        ")")]
-           [proc-val (param body saved-env) "#proc"]
+           [proc-val (params body saved-env) (string-append "#proc(" 
+                                                            (number->string (length params)) 
+                                                            ")")]
            [unit-val () ""])))
 
 
@@ -292,21 +305,26 @@
            [let-exp (var exp1 exp2) (value-of-exp exp2 (extend-env var (value-of-exp exp1 env) env))]
 
            ;; PROC
-           [proc-exp (param body) (proc-val param body env)]
-           [call-exp (rator rand)
+           [proc-exp (params body) (proc-val params body env)]
+           [call-exp (rator rands)
                      (let
                        ([ratorval (value-of-exp rator env)]
-                        [randval (value-of-exp rand env)])
-                       (value-of-exp
-                         (expval->proc-body ratorval)
-                         (extend-env
-                           (expval->proc-param ratorval)
-                           randval 
-                           (expval->proc-saved-env ratorval))))]
+                        [randvals (map (lambda (rand) (value-of-exp rand env)) rands)])
+                       (if (= (length (expval->proc-params ratorval))
+                              (length randvals))
+                         (value-of-exp
+                           (expval->proc-body ratorval)
+                           (fold-left (lambda (acc head1 head2)
+                                        (extend-env head1 head2 acc)) 
+                                      (expval->proc-saved-env ratorval)
+                                      (expval->proc-params ratorval)
+                                      randvals
+                                      ))
+                         (raise-exception 'value-of-exp "Incorrect argument count in call!")))]
 
            ;; LETREC
-           [letrec-exp (f-name f-param f-body body)
-                       (value-of-exp body (extend-env-rec f-name f-param f-body env))]
+           [letrec-exp (f-name f-params f-body body)
+                       (value-of-exp body (extend-env-rec f-name f-params f-body env))]
 
            ;; HW 5
            [const-true-exp () (bool-val #t)]
