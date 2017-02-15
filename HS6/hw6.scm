@@ -149,6 +149,11 @@
                    (var symbol?)
                    (val expval?)
                    (env environment?))
+                 (extend-env-rec
+                   (f-name symbol?)
+                   (f-params list-of-symbols?)
+                   (f-body expression?)
+                   (saved-env environment?))
                  )
 
 ;; (apply-env env target-var) s to figure out the maping of target-var
@@ -156,6 +161,10 @@
 (define apply-env ; Env x Var -> SType
   (lambda (env target-var)
     (cases environment env
+           [extend-env-rec (f-name f-params f-body saved-env)
+                           (if (equal? f-name target-var)
+                             (proc-val f-params f-body env)
+                             (apply-env saved-env target-var))]
            [empty-env () (raise-exception 'apply-env "No binding for ~s" target-var)]
            [extend-env (var val env*) 
                        (cond
