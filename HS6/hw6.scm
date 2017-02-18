@@ -35,7 +35,7 @@
     ;; ============== PROC Definitions below ========================
 
     (expression                                        ;; <expression> ::=
-      ("proc (" (arbno identifier) ")" expression)              ;;   Concrete  proc (<identifier>) <expression>
+      ("proc" "(" (arbno identifier) ")" expression)              ;;   Concrete  proc (<identifier>) <expression>
       proc-exp)                                         ;;   Abstract  (proc-exp param body)
 
     (expression                                        ;; <expression> ::=
