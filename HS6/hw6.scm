@@ -370,12 +370,9 @@
 
            ;; HW 6
            [newline-exp () (display "\n") (unit-val)]
-           [block-exp (exps) (cond
-                               [(null? exps) (unit-val)]
-                               [else (car 
-                                       (fold-left (lambda (acc head) (cons (value-of-exp head env) acc))
-                                                '()
-                                                exps))])]
+           [block-exp (exps) (fold-left (lambda (acc head) (value-of-exp head env))
+                                                (unit-val)
+                                                exps)]
            [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
 
