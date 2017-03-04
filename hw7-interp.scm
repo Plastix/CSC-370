@@ -153,6 +153,12 @@
 	  (newline)]
 	 [(equal? code "!reset-env")
 	  (set! env (make-init-env))]
+	 [(equal? code "!store")
+	 (display the-store!)
+	 (display "\n")]
+	 [(equal? code "!free")
+	 (display free-list!)
+	 (display "\n")]
 	 [else
 	  ;; Parse code, eval expression, and print result.
 	  (guard  ;; Catches parse exceptions from sllgen
