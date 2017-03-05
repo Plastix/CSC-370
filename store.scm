@@ -130,3 +130,12 @@
 		(let
 			([ref (expval->ref ev)])
 			(vector-set! the-store! ref (expval-cell val)))))
+
+
+;; (delref! ev) expects that ev is a reference (ref-val ref), and
+;; deletes the value corresponding to the reference from the store
+(define delref!
+	(lambda (ev)
+		(let ([ref (expval->ref ev)])
+			(vector-set! the-store! ref (free-cell ref free-list!))
+			(set! free-list! ref))))
