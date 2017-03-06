@@ -180,6 +180,7 @@
 		(display (expval->string val))
 		(set! env new-env)  
 		(newline)
+        (collect env)
 		))))])
 	(read-eval-print env)]))))
 

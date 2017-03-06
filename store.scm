@@ -7,7 +7,9 @@
 
 (define-datatype cell cell?
 	(expval-cell
-		(val expval?))
+		(val expval?)
+        (m boolean?)
+        )
 	(free-cell
 		(ref number?)
 		(next number?))
@@ -68,7 +70,7 @@
 						the-store!)
 
 					; Insert new val at numfull position
-					(vector-set! newstore numfull (expval-cell val))
+					(vector-set! newstore numfull (expval-cell val #f))
 
 					; Update new frees cells
 					; numfull + 1 to newlen - 2
@@ -100,7 +102,7 @@
 						[free-cell (ref next)
 				
 							; Set val to current index of free cell
-							(vector-set! the-store! ref (expval-cell val))
+							(vector-set! the-store! ref (expval-cell val #f))
 
 							; Update free list to next index pointer
 							(set! free-list! next)
@@ -119,7 +121,7 @@
 		(let 
 			([ref (expval->ref ev)])
 			(cases cell (vector-ref the-store! ref)
-				[expval-cell (val) val]
+				[expval-cell (val m) val]
 				[else (raise-exception 'deref "Attempted to deref null reference!")]))
 		))
 
@@ -129,7 +131,7 @@
 	(lambda (ev val)
 		(let
 			([ref (expval->ref ev)])
-			(vector-set! the-store! ref (expval-cell val)))))
+			(vector-set! the-store! ref (expval-cell val #f)))))
 
 
 ;; (delref! ev) expects that ev is a reference (ref-val ref), and
@@ -139,3 +141,70 @@
 		(let ([ref (expval->ref ev)])
 			(vector-set! the-store! ref (free-cell ref free-list!))
 			(set! free-list! ref))))
+
+
+(define collect
+  (lambda (root)
+    (mark root)
+    (sweep the-store!)))
+
+(define expval-cell->m
+	(lambda (c) 
+		(cases cell c
+			[expval-cell (val m) m]
+			[else (raise-exception 'expval-cell->m "(m) Cell is not an expval-cell!")])))
+
+(define expval-cell->val
+	(lambda (c) 
+		(cases cell c
+			[expval-cell (val m) val]
+			[else (raise-exception 'expval-cell->val "(val) Cell is not an expval-cell!")])))
+
+(define mark
+  (lambda (e)
+    (cond
+        [(environment? e)
+         (cases environment e
+                [empty-env () 0]
+                [extend-env (var val env)
+                	(let* (
+                		[ref (expval->ref val)]
+                		[c (vector-ref the-store! ref)]
+	                	[marked (expval-cell->m c)])
+
+                		(if (not marked)
+                			(let ([ev (expval-cell->val c)])
+	                                  (vector-set! the-store! ref (expval-cell ev #t)) 
+	                                  (mark ev)))
+                	
+                		(mark env))]
+                [extend-env-rec (f-name f-param f-body env) (mark env)])]
+        [(expval? e)
+         	(cases expval e
+         		[proc-val (param body env) (mark env)]
+         		[list-val (ls) (for-each mark ls)]
+         		[ref-val (ref) 
+         			(let* (
+         				[c (vector-ref the-store! ref)]
+         				[marked (expval-cell->m c)]
+	         			)
+
+	             		(if (not marked)
+	            			(let ([ev (expval-cell->val c)])
+	                                  (vector-set! the-store! ref (expval-cell ev #t)) 
+	                                  (mark ev))))]
+         		[else 0])])
+))
+
+
+(define sweep
+  (lambda (store)
+    (for-each (lambda (i c)
+    	(cases cell c
+    		[expval-cell (val m)
+					(if m
+                         (vector-set! store i (expval-cell val #f))
+                         (delref! (ref-val i)))]
+			[else 0])) 
+         (range 0 (- (vector-length store) 1)) 
+         (vector->list store))))
