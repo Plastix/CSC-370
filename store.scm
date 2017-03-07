@@ -218,4 +218,4 @@
 		 	(display c)
 		 	(newline))
          (range 0 (- (vector-length the-store!) 1)) 
-         (vector->list the-store!)))
+         (vector->list the-store!))))
