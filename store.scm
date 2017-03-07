@@ -130,13 +130,14 @@
 			(vector-set! the-store! ref (expval-cell val #f)))))
 
 
-;; (delref! ev) expects that ev is a reference (ref-val ref), and
-;; deletes the value corresponding to the reference from the store
-(define delref!
-	(lambda (ev)
-		(let ([ref (expval->ref ev)])
-			(vector-set! the-store! ref (free-cell ref free-list!))
-			(set! free-list! ref))))
+;; (free! i)
+;; deletes the value at the corresponding index i in the store
+(define free!
+	(lambda (i)
+			(if (or (< i 0) (>= i (vector-length the-store!)))
+				(raise-exception 'free! "Invalid store index!"))
+			(vector-set! the-store! i (free-cell i free-list!))
+			(set! free-list! i)))
 
 
 (define collect
@@ -200,7 +201,7 @@
     		[expval-cell (val m)
 					(if m
                          (vector-set! the-store! i (expval-cell val #f))
-                         (delref! (ref-val i)))]
+                         (free! i))]
 			[else 0])) 
          (range 0 (- (vector-length the-store!) 1)) 
          (vector->list the-store!))))
