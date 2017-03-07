@@ -102,6 +102,11 @@
       
       ;; Implicit References
       [assign-exp (var exp) (setref! (apply-env env var) (value-of-exp exp env)) (unit-val)]
+
+       ;; HW 6
+      [print-exp (exp) (display (expval->string (value-of-exp exp env))) (unit-val)]
+      [newline-exp ()  (newline) (unit-val)]
+      [block-exp (exps) (fold-left (lambda (acc exp) (value-of-exp exp env)) (unit-val) exps)]
       
       [else (raise-exception 'value-of-exp "Abstract syntax case not implemented: ~s" (car exp))])))
 
