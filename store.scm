@@ -58,27 +58,23 @@
 					[newlen (+ 1 (* 2 numfull))] ; New length of the store
 					[lastIndex (- newlen 1)] ; Index of the last item in the new store
 					[newstore (make-vector newlen (free-cell lastIndex -1))] ; New store vector
-					[i 0]
 					)
 
 					; Copy old values to new store
-					(vector-for-each 
-						(lambda (head) 
-							(vector-set! newstore i head)
-							(set! i (+ 1 i)) ; Side effects oh no!
-						) 
-						the-store!)
+					(for-each
+						(lambda (i c) 
+							(vector-set! newstore i c)) 
+						(range 0 (- numfull 1))
+						(vector->list the-store!))
 
 					; Insert new val at numfull position
 					(vector-set! newstore numfull (expval-cell val #f))
 
-					; Update new frees cells
-					; numfull + 1 to newlen - 2
-					(fold-right 
-						(lambda (i acc)
-							(vector-set! newstore i (free-cell i (+ i 1)))
-						)
-						#f
+					; Update new free cells
+					; (numfull + 1 through newlen -2)
+					(for-each
+						(lambda (i)
+							(vector-set! newstore i (free-cell i (+ i 1))))
 						(range (+ numfull 1) (- lastIndex 1)))
 
 					; Update free list
@@ -146,7 +142,7 @@
 (define collect
   (lambda (root)
     (mark root)
-    (sweep the-store!)))
+    (sweep)))
 
 (define expval-cell->m
 	(lambda (c) 
@@ -198,16 +194,16 @@
 
 
 (define sweep
-  (lambda (store)
+  (lambda ()
     (for-each (lambda (i c)
     	(cases cell c
     		[expval-cell (val m)
 					(if m
-                         (vector-set! store i (expval-cell val #f))
+                         (vector-set! the-store! i (expval-cell val #f))
                          (delref! (ref-val i)))]
 			[else 0])) 
-         (range 0 (- (vector-length store) 1)) 
-         (vector->list store))))
+         (range 0 (- (vector-length the-store!) 1)) 
+         (vector->list the-store!))))
 
 
 (define print-store!
