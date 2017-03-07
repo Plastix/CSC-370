@@ -154,8 +154,7 @@
 	 [(equal? code "!reset-env")
 	  (set! env (make-init-env))]
 	 [(equal? code "!store")
-	 (display the-store!)
-	 (display "\n")]
+	 (print-store!)]
 	 [(equal? code "!free")
 	 (display free-list!)
 	 (display "\n")]

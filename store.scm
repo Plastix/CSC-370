@@ -9,7 +9,7 @@
 	(expval-cell
 		(val expval?)
         (m boolean?)
-        )
+ )
 	(free-cell
 		(ref number?)
 		(next number?))
@@ -208,3 +208,14 @@
 			[else 0])) 
          (range 0 (- (vector-length store) 1)) 
          (vector->list store))))
+
+
+(define print-store!
+	(lambda ()
+		 (for-each (lambda (i c)
+		 	(display i)
+		 	(display " : ")
+		 	(display c)
+		 	(newline))
+         (range 0 (- (vector-length the-store!) 1)) 
+         (vector->list the-store!)))
