@@ -1,0 +1,32 @@
+CSC 370 HS 7
+
+Aidan Pieper
+Jerry Ji
+
+3/10/17
+
+Problem 3:
+
+Part 1:
+
+we kept the original interface of the store. The store now contains one of two "cells." A cell is either an expval-cell or a free-cell. Expval-cells denote a slot in the store which contains an expressed value. Expval-cells also contain a boolean (marker) which is used by the garbage collecter to determine reachability of the object. Free-cells contain the index of the current cell and the index of the next free-cell in the store. We maintain an index which is a pointer to the first free-cell of the free-cell linked list in the store.
+
+If we have a free-cell, we stick a new value into the slot corresponding to that cell. Otherwise, we need to grow the store to fit more items. We double the size of the store every time we need to grow it. Thus, the time to grow the store is amortized over all inserts to the store.
+
+Moreover, we added a single new procedure called "free!" which takes in a valid index (i) of the store vector and removes any data at that index (By overwriting it with a free-cell).
+
+Part 2:
+
+We chose to implement a basic tracing garbage collector using a naive implementation of the Mark-sweep algorithm. After evauluating a program in the REPL loop, we run the collector before calling the REPL loop again.
+
+Mark-sweep works by identifying live objects and concluding that anything that is not live is garbage and thus can be removed. Every run of Mark-sweep requires that it recalculate the status (reachability/nonreachability) of objects. This requires that the programming language evaulation be paused while the garbage collector scans the store (Hence why we run the collector between REPL loops). This is one of the big tradeoffs with a static garbage collector like Mark-sweep.
+
+The end of the REPL loop calls a single procedure named "collect" which takes in a global environment (aka the roots). Collect then marks all objects in the store which are referenced in the environment using a dual recursive procedure called "mark." After marking all objects in the store which are reachable from the roots, Collect calls "sweep" which scans the store and removes all unmarked cells by using the "free!" procedure.
+
+The procedure "mark" marks a expval-cell in the store but also marks any child cells which are referenced by the original cell. For the root and procedures, we need to recurse on environments, but once we're in an environment we need to recurse on expvals. As mentioned above, a few expvals (like procedures) contain references to other cells.
+
+We considered implmenting reference counting but it seemed like a lot of work and decided against it.
+
+We added two new debug commands to the interpreter:
+	1. !store - prints out a human readable version of the store
+	2. !free - prints out the index of the store corresponding to the next free-cell. -1 if no free-cell is available.
