@@ -8,12 +8,10 @@
 (define-datatype cell cell?
 	(expval-cell
 		(val expval?)
-        (m boolean?)
- )
+        (m boolean?))
 	(free-cell
 		(ref number?)
-		(next number?))
-)
+		(next number?)))
 
 ;; Index of next free cell in store
 ;; The object at said index will contain a reference to the next
@@ -48,7 +46,6 @@
 (define newref!
 	(lambda (val)
 		(cond 
-
 			;; No free slots in store
 			;; We must grow store!
 			[(no-free?)
@@ -106,8 +103,7 @@
 							; Return reference to newly inserted item
 							(ref-val ref)]
 						[else (raise-exception 'newref "Something went wrong! Couldn't find room for a new reference!")]
-					))]
-
+					))] 
 		)))
 
 ;; (deref ev) expects that ev is a reference (ref-val ref), and
@@ -140,6 +136,7 @@
 			(set! free-list! i)))
 
 
+;; Collects garbage from the store using a Mark-sweep algorithm
 (define collect
   (lambda (root)
     (mark root)
@@ -168,12 +165,10 @@
                 		[ref (expval->ref val)]
                 		[c (vector-ref the-store! ref)]
 	                	[marked (expval-cell->m c)])
-
                 		(if (not marked)
                 			(let ([ev (expval-cell->val c)])
 	                                  (vector-set! the-store! ref (expval-cell ev #t)) 
 	                                  (mark ev)))
-                	
                 		(mark env))]
                 [extend-env-rec (f-name f-param f-body env) (mark env)])]
         [(expval? e)
@@ -183,16 +178,13 @@
          		[ref-val (ref) 
          			(let* (
          				[c (vector-ref the-store! ref)]
-         				[marked (expval-cell->m c)]
-	         			)
-
+         				[marked (expval-cell->m c)])
 	             		(if (not marked)
 	            			(let ([ev (expval-cell->val c)])
 	                                  (vector-set! the-store! ref (expval-cell ev #t)) 
 	                                  (mark ev))))]
          		[else 0])])
 ))
-
 
 (define sweep
   (lambda ()
@@ -206,7 +198,6 @@
          (range 0 (- (vector-length the-store!) 1)) 
          (vector->list the-store!))))
 
-
 (define print-store!
 	(lambda ()
 		 (for-each (lambda (i c)
@@ -216,3 +207,36 @@
 		 	(newline))
          (range 0 (- (vector-length the-store!) 1)) 
          (vector->list the-store!))))
+
+
+;; =============== GC Test Programs ====================
+;;
+;; > def! a = 5
+;;
+;; -----------------------------------------------------
+;;
+;; > def! b = let x = 10 in 15
+;;
+;; -----------------------------------------------------
+;;
+;; > def! p = let a = 5 in let b = 6 in proc () 10
+;;
+;; -----------------------------------------------------
+;;
+;; > def! g = let y = 42 in let f = proc(x) y in f
+;; > (g 12)
+;;
+;; -----------------------------------------------------
+;;
+;; > def! r = let r1 = newref!(0) in let r2 = newref!(r1) in { setref!(r1,r2)  r1 }
+;; > deref(r)
+;; > deref(deref(r))
+;;
+;; -----------------------------------------------------
+;;
+;; > def! p = newref!(0)
+;; > setref!(p,newref!(1))
+;; > setref!(deref(p),newref!(2))
+;;
+;; -----------------------------------------------------
+;;
